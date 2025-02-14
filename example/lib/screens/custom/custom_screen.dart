@@ -345,12 +345,13 @@ class _CallActionButtons extends StatelessWidget {
   final Map<String, String> metadata;
   final String callId;
 
-  // ignore: unused_element
-  const _CallActionButtons(
-      {super.key,
-      required this.callId,
-      required this.data,
-      required this.metadata});
+  const _CallActionButtons({
+    // ignore: unused_element
+    super.key,
+    required this.callId,
+    required this.data,
+    required this.metadata,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -388,12 +389,13 @@ class _CallDataEditor extends StatefulWidget {
   final ValueChanged<Map<String, String>> onMetadataChanged;
   final String callId;
 
-  // ignore: unused_element
-  const _CallDataEditor(
-      {super.key,
-      required this.callId,
-      required this.onDataChanged,
-      required this.onMetadataChanged});
+  const _CallDataEditor({
+    // ignore: unused_element
+    super.key,
+    required this.callId,
+    required this.onDataChanged,
+    required this.onMetadataChanged,
+  });
 
   @override
   State<_CallDataEditor> createState() => _CallDataEditorState();

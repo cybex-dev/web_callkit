@@ -215,15 +215,16 @@ class _TextField extends StatefulWidget {
   final ValueChanged? onFocusChanged;
   final ValueChanged<String>? onBackspace;
 
-  // ignore: unused_element
-  const _TextField(
-      {super.key,
-      this.onChanged,
-      this.onSubmitted,
-      required this.value,
-      this.hintText,
-      this.onFocusChanged,
-      this.onBackspace});
+  const _TextField({
+    // ignore: unused_element
+    super.key,
+    this.onChanged,
+    this.onSubmitted,
+    required this.value,
+    this.hintText,
+    this.onFocusChanged,
+    this.onBackspace,
+  });
 
   @override
   State<_TextField> createState() => _TextFieldState();
