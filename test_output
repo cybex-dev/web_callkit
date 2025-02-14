@@ -1,0 +1,28 @@
+00:00 +0: loading /Users/charlesdyason/FlutterProjects/web_callkit/test/web_callkit_test.dart                                                                                                          00:01 +0: loading /Users/charlesdyason/FlutterProjects/web_callkit/test/web_callkit_test.dart                                                                                                          00:02 +0: loading /Users/charlesdyason/FlutterProjects/web_callkit/test/web_callkit_test.dart                                                                                                          00:03 +0: loading /Users/charlesdyason/FlutterProjects/web_callkit/test/web_callkit_test.dart                                                                                                          00:04 +0: loading /Users/charlesdyason/FlutterProjects/web_callkit/test/web_callkit_test.dart                                                                                                          00:04 +0 -1: loading /Users/charlesdyason/FlutterProjects/web_callkit/test/web_callkit_test.dart [E]                                                                                                   
+  Failed to load "/Users/charlesdyason/FlutterProjects/web_callkit/test/web_callkit_test.dart": Compilation failed for testPath=/Users/charlesdyason/FlutterProjects/web_callkit/test/web_callkit_test.dart
+
+To run this test again: /Users/charlesdyason/.flutter/bin/cache/dart-sdk/bin/dart test /Users/charlesdyason/FlutterProjects/web_callkit/test/web_callkit_test.dart -p vm --plain-name 'loading /Users/charlesdyason/FlutterProjects/web_callkit/test/web_callkit_test.dart'
+  Error: the Dart compiler exited unexpectedly.
+  package:flutter_tools/src/base/common.dart 10:3  throwToolExit
+  package:flutter_tools/src/compile.dart 898:9     DefaultResidentCompiler._compile.<fn>
+  dart:async/zone.dart 1407:47                     _rootRunUnary
+  dart:async/zone.dart 1308:19                     _CustomZone.runUnary
+  dart:async/future_impl.dart 847:45               Future._propagateToListeners.handleValueCallback
+  dart:async/future_impl.dart 876:13               Future._propagateToListeners
+  dart:async/future_impl.dart 772:9                Future._propagateToListeners
+  dart:async/future_impl.dart 652:5                Future._completeWithValue
+  dart:async/future_impl.dart 722:7                Future._asyncCompleteWithValue.<fn>
+  dart:async/zone.dart 1399:13                     _rootRun
+  dart:async/zone.dart 1301:19                     _CustomZone.run
+  dart:async/zone.dart 1209:7                      _CustomZone.runGuarded
+  dart:async/zone.dart 1249:23                     _CustomZone.bindCallbackGuarded.<fn>
+  dart:async/schedule_microtask.dart 40:21         _microtaskLoop
+  dart:async/schedule_microtask.dart 49:5          _startMicrotaskLoop
+  dart:isolate-patch/isolate_patch.dart 118:13     _runPendingImmediateCallback
+  dart:isolate-patch/isolate_patch.dart 185:5      _RawReceivePort._handleMessage
+  
+00:09 +0 -2: loading /Users/charlesdyason/FlutterProjects/web_callkit/test/web_callkit_method_channel_test.dart [E]                                                                                    
+  Failed to load "/Users/charlesdyason/FlutterProjects/web_callkit/test/web_callkit_method_channel_test.dart": Compilation failed for testPath=/Users/charlesdyason/FlutterProjects/web_callkit/test/web_callkit_method_channel_test.dart
+
+To run this test again: /Users/charlesdyason/.flutter/bin/cache/dart-sdk/bin/dart test /Users/charlesdyason/FlutterProjects/web_callkit/test/web_callkit_method_channel_test.dart -p vm --plain-name 'loading /Users/charlesdyason/FlutterProjects/web_callkit/test/web_callkit_method_channel_test.dart'
+00:09 +0 -2: Some tests failed.                                                                                                                                                                        
