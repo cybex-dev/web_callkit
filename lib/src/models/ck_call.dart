@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:web_callkit/src/core/enums/call_type.dart';
-
 import '../core/core.dart';
 
 class CKCall {
@@ -111,14 +109,20 @@ class CKCall {
     }
     final List<String> changes = [];
     if (uuid != call.uuid) changes.add('uuid: $uuid -> ${call.uuid}');
-    if (localizedName != call.localizedName) changes.add('localizedName: $localizedName -> ${call.localizedName}');
-    if (dateStarted != call.dateStarted) changes.add('dateStarted: $dateStarted -> ${call.dateStarted}');
-    if (dateUpdated != call.dateUpdated) changes.add('dateUpdated: $dateUpdated -> ${call.dateUpdated}');
-    if (attributes != call.attributes) changes.add('attributes: $attributes -> ${call.attributes}');
-    if (callType != call.callType) changes.add('callType: $callType -> ${call.callType}');
+    if (localizedName != call.localizedName)
+      changes.add('localizedName: $localizedName -> ${call.localizedName}');
+    if (dateStarted != call.dateStarted)
+      changes.add('dateStarted: $dateStarted -> ${call.dateStarted}');
+    if (dateUpdated != call.dateUpdated)
+      changes.add('dateUpdated: $dateUpdated -> ${call.dateUpdated}');
+    if (attributes != call.attributes)
+      changes.add('attributes: $attributes -> ${call.attributes}');
+    if (callType != call.callType)
+      changes.add('callType: $callType -> ${call.callType}');
     if (state != call.state) changes.add('state: $state -> ${call.state}');
     if (data != call.data) changes.add('data: $data -> ${call.data}');
-    if (capabilities != call.capabilities) changes.add('capabilities: $capabilities -> ${call.capabilities}');
+    if (capabilities != call.capabilities)
+      changes.add('capabilities: $capabilities -> ${call.capabilities}');
     return changes.join(',\n');
   }
 
@@ -134,7 +138,8 @@ class CKCall {
 
   bool get hasCapabilities => capabilities.isNotEmpty;
 
-  bool get hasCapabilitySupportsHold => capabilities.contains(CallKitCapability.supportHold);
+  bool get hasCapabilitySupportsHold =>
+      capabilities.contains(CallKitCapability.supportHold);
 
   bool get hasCapabilityHold => capabilities.contains(CallKitCapability.hold);
 

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:web_callkit/web_callkit.dart';
 import 'package:web_callkit_example/utils.dart';
@@ -39,6 +39,7 @@ class CustomScreen extends StatelessWidget {
 }
 
 class _CustomCallCard extends StatefulWidget {
+  // ignore: unused_element
   const _CustomCallCard({super.key});
 
   @override
@@ -60,16 +61,18 @@ class _CustomCallCardState extends State<_CustomCallCard> {
   @override
   void initState() {
     super.initState();
-    webCallkitPlugin.callStream.where((e) => e.any((f) => f.uuid == callId)).listen(
+    webCallkitPlugin.callStream
+        .where((e) => e.any((f) => f.uuid == callId))
+        .listen(
       (event) {
         final call = event.firstWhere((element) => element.uuid == callId);
         data.clear();
         metadata.clear();
         data.addAll(call.data?.toStringMap() ?? {});
-        metadata.addAll(webCallkitPlugin.getNotification(callId)?.metadata.toStringMap() ?? {});
-        setState(() {
-
-        });
+        metadata.addAll(
+            webCallkitPlugin.getNotification(callId)?.metadata.toStringMap() ??
+                {});
+        setState(() {});
       },
     );
   }
@@ -141,7 +144,8 @@ class _CustomCallCardState extends State<_CustomCallCard> {
             const VerticalDivider(),
             Container(
               constraints: BoxConstraints(minWidth: 200, maxWidth: width * 0.4),
-              child: SingleChildScrollView(child: _InformationPanel(callId: callId)),
+              child: SingleChildScrollView(
+                  child: _InformationPanel(callId: callId)),
             )
           ],
         ),
@@ -153,6 +157,7 @@ class _CustomCallCardState extends State<_CustomCallCard> {
 class _CallCapabilities extends StatelessWidget {
   final String callId;
 
+  // ignore: unused_element
   const _CallCapabilities({super.key, required this.callId});
 
   @override
@@ -176,7 +181,8 @@ class _CallCapabilities extends StatelessWidget {
                 return;
               }
               final cap = call.capabilities.toggleWith(e);
-              await webCallkitPlugin.updateCallCapabilities(callId, capabilities: cap);
+              await webCallkitPlugin.updateCallCapabilities(callId,
+                  capabilities: cap);
             },
             child: Text(e.name.capitalize()),
           ),
@@ -189,10 +195,8 @@ class _CallCapabilities extends StatelessWidget {
 class _CallTypeSelector extends StatelessWidget {
   final String callId;
 
-  const _CallTypeSelector({
-    super.key,
-    required this.callId,
-  });
+  // ignore: unused_element
+  const _CallTypeSelector({super.key, required this.callId});
 
   @override
   Widget build(BuildContext context) {
@@ -203,7 +207,9 @@ class _CallTypeSelector extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.all(4.0),
           child: ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.orangeAccent, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orangeAccent,
+                foregroundColor: Colors.white),
             onPressed: () async {
               await webCallkitPlugin.updateCallType(callId, callType: e);
             },
@@ -218,6 +224,7 @@ class _CallTypeSelector extends StatelessWidget {
 class _CallStateSelector extends StatelessWidget {
   final String callId;
 
+  // ignore: unused_element
   const _CallStateSelector({super.key, required this.callId});
 
   @override
@@ -229,7 +236,9 @@ class _CallStateSelector extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.all(4.0),
           child: ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurpleAccent, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurpleAccent,
+                foregroundColor: Colors.white),
             onPressed: () async {
               await webCallkitPlugin.updateCallStatus(callId, callStatus: e);
             },
@@ -244,6 +253,7 @@ class _CallStateSelector extends StatelessWidget {
 class _CallMuteSelector extends StatelessWidget {
   final String callId;
 
+  // ignore: unused_element
   const _CallMuteSelector({super.key, required this.callId});
 
   @override
@@ -253,27 +263,31 @@ class _CallMuteSelector extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.purple, foregroundColor: Colors.white),
+          style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.purple, foregroundColor: Colors.white),
           onPressed: () async {
             final call = webCallkitPlugin.getCall(callId);
             if (call == null) {
               return;
             }
             final attr = call.attributes.addWith(CallAttributes.mute);
-            await webCallkitPlugin.updateCallAttributes(callId, attributes: attr);
+            await webCallkitPlugin.updateCallAttributes(callId,
+                attributes: attr);
           },
           child: const Text("Mute"),
         ),
         const SizedBox(width: 8),
         ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.purple, foregroundColor: Colors.white),
+          style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.purple, foregroundColor: Colors.white),
           onPressed: () async {
-            final call = await webCallkitPlugin.getCall(callId);
+            final call = webCallkitPlugin.getCall(callId);
             if (call == null) {
               return;
             }
             final attr = call.attributes.removeWith(CallAttributes.mute);
-            await webCallkitPlugin.updateCallAttributes(callId, attributes: attr);
+            await webCallkitPlugin.updateCallAttributes(callId,
+                attributes: attr);
           },
           child: const Text("Unmute"),
         ),
@@ -285,6 +299,7 @@ class _CallMuteSelector extends StatelessWidget {
 class _CallHoldSelector extends StatelessWidget {
   final String callId;
 
+  // ignore: unused_element
   const _CallHoldSelector({super.key, required this.callId});
 
   @override
@@ -294,14 +309,30 @@ class _CallHoldSelector extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
-          onPressed: () {},
+          style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue, foregroundColor: Colors.white),
+          onPressed: () {
+            final call = webCallkitPlugin.getCall(callId);
+            if (call == null) {
+              return;
+            }
+            final attr = call.attributes.addWith(CallAttributes.hold);
+            webCallkitPlugin.updateCallAttributes(callId, attributes: attr);
+          },
           child: const Text("Hold"),
         ),
         const SizedBox(width: 8),
         ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
-          onPressed: () {},
+          style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue, foregroundColor: Colors.white),
+          onPressed: () {
+            final call = webCallkitPlugin.getCall(callId);
+            if (call == null) {
+              return;
+            }
+            final attr = call.attributes.removeWith(CallAttributes.hold);
+            webCallkitPlugin.updateCallAttributes(callId, attributes: attr);
+          },
           child: const Text("Resume"),
         ),
       ],
@@ -314,7 +345,12 @@ class _CallActionButtons extends StatelessWidget {
   final Map<String, String> metadata;
   final String callId;
 
-  const _CallActionButtons({super.key, required this.callId, required this.data, required this.metadata});
+  // ignore: unused_element
+  const _CallActionButtons(
+      {super.key,
+      required this.callId,
+      required this.data,
+      required this.metadata});
 
   @override
   Widget build(BuildContext context) {
@@ -325,9 +361,11 @@ class _CallActionButtons extends StatelessWidget {
         ElevatedButton(
           onPressed: () async {
             const name = "Jane Smith";
-            await webCallkitPlugin.reportIncomingCall(uuid: callId, handle: name, capabilities: {}, data: data);
+            await webCallkitPlugin.reportIncomingCall(
+                uuid: callId, handle: name, capabilities: {}, data: data);
             if (metadata.isNotEmpty) {
-              await webCallkitPlugin.updateCallMetadata(callId, metadata: metadata);
+              await webCallkitPlugin.updateCallMetadata(callId,
+                  metadata: metadata);
             }
           },
           child: const Text('Report New Call'),
@@ -335,7 +373,8 @@ class _CallActionButtons extends StatelessWidget {
         const SizedBox(width: 8),
         ElevatedButton(
           onPressed: () async {
-            await webCallkitPlugin.reportCallDisconnected(callId, response: DisconnectResponse.local);
+            await webCallkitPlugin.reportCallDisconnected(callId,
+                response: DisconnectResponse.local);
           },
           child: const Text('Report Call Disconnected'),
         ),
@@ -349,7 +388,12 @@ class _CallDataEditor extends StatefulWidget {
   final ValueChanged<Map<String, String>> onMetadataChanged;
   final String callId;
 
-  const _CallDataEditor({super.key, required this.callId, required this.onDataChanged, required this.onMetadataChanged});
+  // ignore: unused_element
+  const _CallDataEditor(
+      {super.key,
+      required this.callId,
+      required this.onDataChanged,
+      required this.onMetadataChanged});
 
   @override
   State<_CallDataEditor> createState() => _CallDataEditorState();
@@ -371,11 +415,14 @@ class _CallDataEditorState extends State<_CallDataEditor> {
   void initState() {
     super.initState();
     _sub = webCallkitPlugin.callStream.listen((event) {
-      final call = event.where((element) => element.uuid == widget.callId).firstOrNull;
+      final call =
+          event.where((element) => element.uuid == widget.callId).firstOrNull;
       data.clear();
       meta.clear();
       if (call != null) {
-        final mapped = call.data?.map((key, value) => MapEntry(key, value.toString())) ?? <String, String>{};
+        final mapped =
+            call.data?.map((key, value) => MapEntry(key, value.toString())) ??
+                <String, String>{};
         data.addAll(mapped);
       } else {
         data.clear();
@@ -401,7 +448,9 @@ class _CallDataEditorState extends State<_CallDataEditor> {
             if (webCallkitPlugin.getCall(widget.callId) != null) {
               webCallkitPlugin.updateCallData(widget.callId, data: updatedData);
             }
-            print("data: $updatedData");
+            if (kDebugMode) {
+              print("data: $updatedData");
+            }
           });
         },
         onMetaToggle: (updatedMetadata) {
@@ -410,9 +459,12 @@ class _CallDataEditorState extends State<_CallDataEditor> {
             meta.addAll(updatedMetadata);
             widget.onMetadataChanged(updatedMetadata);
             if (webCallkitPlugin.getCall(widget.callId) != null) {
-              webCallkitPlugin.updateCallMetadata(widget.callId, metadata: updatedMetadata);
+              webCallkitPlugin.updateCallMetadata(widget.callId,
+                  metadata: updatedMetadata);
             }
-            print("metadata: $updatedMetadata");
+            if (kDebugMode) {
+              print("metadata: $updatedMetadata");
+            }
           });
         },
       ),
@@ -429,19 +481,23 @@ class _CallDataEditorState extends State<_CallDataEditor> {
 class _InformationPanel extends StatelessWidget {
   final String callId;
 
+  // ignore: unused_element
   const _InformationPanel({super.key, required this.callId});
 
   @override
   Widget build(BuildContext context) {
-    const _smallTextStyle = TextStyle(fontSize: 10);
-    const _smallBoldTextStyle = TextStyle(fontSize: 10, fontWeight: FontWeight.bold);
+    const smallTextStyle = TextStyle(fontSize: 10);
+    const smallBoldTextStyle =
+        TextStyle(fontSize: 10, fontWeight: FontWeight.bold);
     final instance = WebCallkit.instance;
     return CKCard(
       title: const Text("Call Information"),
       child: StreamBuilder<Iterable<CKCall>>(
         stream: instance.callStream,
         builder: (context, snapshot) {
-          final call = snapshot.data?.where((element) => element.uuid == callId).firstOrNull;
+          final call = snapshot.data
+              ?.where((element) => element.uuid == callId)
+              .firstOrNull;
           if (call == null) {
             return const Text("No call found");
           }
@@ -455,21 +511,33 @@ class _InformationPanel extends StatelessWidget {
             "Updated Ago": call.dateUpdated.getTimeDifference(call.dateStarted),
             "Holding": call.isHolding ? "Yes" : "No",
             "Muted": call.isMuted ? "Yes" : "No",
-            "Attributes": call.attributes.isEmpty ? "None" : call.attributes.map((e) => e.name).join(", "),
-            "Capabilities": call.capabilities.isEmpty ? "None" : call.capabilities.map((e) => e.name).join(", "),
-            "Data": (call.data ?? {}).isEmpty ? "{}" : call.data!.entries.map((e) => "${e.key}: ${e.value}").join(", "),
-            "MetaData": (n?.metadata ?? {}).isEmpty ? "{}" : n!.metadata.entries.map((e) => "${e.key}: ${e.value}").join(", "),
+            "Attributes": call.attributes.isEmpty
+                ? "None"
+                : call.attributes.map((e) => e.name).join(", "),
+            "Capabilities": call.capabilities.isEmpty
+                ? "None"
+                : call.capabilities.map((e) => e.name).join(", "),
+            "Data": (call.data ?? {}).isEmpty
+                ? "{}"
+                : call.data!.entries
+                    .map((e) => "${e.key}: ${e.value}")
+                    .join(", "),
+            "MetaData": (n?.metadata ?? {}).isEmpty
+                ? "{}"
+                : n!.metadata.entries
+                    .map((e) => "${e.key}: ${e.value}")
+                    .join(", "),
           };
           return DataTable(
             dataRowMinHeight: 16,
             columns: const [
-              DataColumn(label: Text("Key", style: _smallBoldTextStyle)),
-              DataColumn(label: Text("Value", style: _smallBoldTextStyle)),
+              DataColumn(label: Text("Key", style: smallBoldTextStyle)),
+              DataColumn(label: Text("Value", style: smallBoldTextStyle)),
             ],
             rows: map.entries.map(
               (e) {
-                final k = Text(e.key, style: _smallBoldTextStyle);
-                final v = Text(e.value, style: _smallTextStyle);
+                final k = Text(e.key, style: smallBoldTextStyle);
+                final v = Text(e.value, style: smallTextStyle);
                 return DataRow(
                   cells: [
                     DataCell(k),

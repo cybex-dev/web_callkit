@@ -1,5 +1,5 @@
-import './models.dart';
 import '../core/core.dart';
+import './models.dart';
 
 class CallEvent {
   late final DateTime timestamp;

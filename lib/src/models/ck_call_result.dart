@@ -8,10 +8,12 @@ class CKCallResult {
   final CKCallAction action;
   final Map<String, dynamic> data;
 
-  const CKCallResult({required this.uuid, required this.action, required this.data});
+  const CKCallResult(
+      {required this.uuid, required this.action, required this.data});
 
   factory CKCallResult.fromResult(NotificationActionResult result) {
-    final action = CKCallAction.fromString(result.action ?? "") ?? CKCallAction.none;
+    final action =
+        CKCallAction.fromString(result.action ?? "") ?? CKCallAction.none;
     final tag = result.tag ?? "";
     final data = result.data ?? {};
     return CKCallResult(uuid: tag, action: action, data: data);

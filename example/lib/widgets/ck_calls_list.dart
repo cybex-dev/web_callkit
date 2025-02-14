@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:web_callkit/web_callkit.dart';
-import 'package:web_callkit/web_callkit_web.dart';
 import 'package:web_callkit_example/theme.dart';
 import 'package:web_callkit_example/widgets/ck_card.dart';
 

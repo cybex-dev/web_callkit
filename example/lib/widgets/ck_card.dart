@@ -33,7 +33,8 @@ class CKCard extends StatelessWidget {
               ],
             ),
           if (description != null) description!,
-          if (title != null || actions != null || description != null) SizedBox(height: headerHeight),
+          if (title != null || actions != null || description != null)
+            SizedBox(height: headerHeight),
           // Expanded(child: child),
           child,
         ],

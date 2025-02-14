@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:web_callkit/web_callkit.dart';
-import 'package:web_callkit_example/utils.dart';
 
 import 'screens/home_screen.dart';
 import 'theme.dart';
@@ -26,10 +25,11 @@ class _MyAppState extends State<MyApp> {
     webCallkitPlugin.setOnCallActionHandler((uuid, action, source) {
       // ignore: avoid_print
       print("onCallActionHandler: $uuid, $action, $source");
-      if(action == CKCallAction.answer) {
+      if (action == CKCallAction.answer) {
         webCallkitPlugin.updateCallStatus(uuid, callStatus: CallState.active);
-      } else if(action == CKCallAction.decline) {
-        webCallkitPlugin.reportCallDisconnected(uuid, response: DisconnectResponse.declined);
+      } else if (action == CKCallAction.decline) {
+        webCallkitPlugin.reportCallDisconnected(uuid,
+            response: DisconnectResponse.declined);
       }
     });
     webCallkitPlugin.setOnCallEventListener((event, source) {
@@ -47,7 +47,7 @@ class _MyAppState extends State<MyApp> {
     });
     webCallkitPlugin.setOnDismissedListener((uuid, source) {
       final call = webCallkitPlugin.getCall(uuid);
-      if(call != null) {
+      if (call != null) {
         webCallkitPlugin.renotify(call.uuid, silent: true);
       }
     });
@@ -83,6 +83,6 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       theme: getThemeData(context),
       home: const HomeScreen(),
-    );;
+    );
   }
 }

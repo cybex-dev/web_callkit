@@ -11,7 +11,8 @@ void main() {
   const MethodChannel channel = MethodChannel('web_callkit');
 
   setUp(() {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
       channel,
       (MethodCall methodCall) async {
         return '42';
@@ -20,7 +21,8 @@ void main() {
   });
 
   tearDown(() {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, null);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, null);
   });
 
   group("CKCall", () {
@@ -30,11 +32,16 @@ void main() {
       final call = CKCall.init(uuid: id, localizedName: name);
       expect(call.uuid, id, reason: 'Call uuid should be $id');
       expect(call.localizedName, name, reason: 'Call name should be $name');
-      expect(call.dateStarted, isNotNull, reason: 'Call dateStarted should not be null');
-      expect(call.dateUpdated, isNotNull, reason: 'Call dateUpdated should not be null');
-      expect(call.attributes, isNotNull, reason: 'Call attributes should not be null');
-      expect(call.callType, CallType.audio, reason: 'Call callType should be audio');
-      expect(call.state, CallState.initiated, reason: 'Call state should be initiated');
+      expect(call.dateStarted, isNotNull,
+          reason: 'Call dateStarted should not be null');
+      expect(call.dateUpdated, isNotNull,
+          reason: 'Call dateUpdated should not be null');
+      expect(call.attributes, isNotNull,
+          reason: 'Call attributes should not be null');
+      expect(call.callType, CallType.audio,
+          reason: 'Call callType should be audio');
+      expect(call.state, CallState.initiated,
+          reason: 'Call state should be initiated');
     });
 
     test('CKCall update uuid', () async {
@@ -52,7 +59,8 @@ void main() {
       const newName = "new call name";
       final call = CKCall.init(uuid: id, localizedName: oldName);
       final copyWith = call.copyWith(localizedName: newName);
-      expect(copyWith.localizedName, newName, reason: 'Copied call localizedName should be $newName');
+      expect(copyWith.localizedName, newName,
+          reason: 'Copied call localizedName should be $newName');
     });
 
     test('CKCall copyWith dateStarted', () async {
@@ -61,7 +69,8 @@ void main() {
       final dateStarted = call.dateStarted;
       final copyWith = call.copyWith(dateStarted: DateTime.now());
       final newDateStarted = copyWith.dateStarted;
-      expect(dateStarted, isNot(newDateStarted), reason: 'Call dateStarted should not be equal to new dateStarted');
+      expect(dateStarted, isNot(newDateStarted),
+          reason: 'Call dateStarted should not be equal to new dateStarted');
     });
 
     test('CKCall copyWith dateUpdated', () async {
@@ -69,16 +78,20 @@ void main() {
       final call = CKCall.init(uuid: id, localizedName: 'handle');
       final updated = call.dateUpdated.add(const Duration(seconds: 10));
       final copyWith = call.copyWith(dateUpdated: updated);
-      expect(call.dateStarted, call.dateUpdated, reason: 'Call dateStarted should be equal to dateUpdated');
-      expect(copyWith.dateUpdated, updated, reason: 'Copied call dateUpdated should be updated');
+      expect(call.dateStarted, call.dateUpdated,
+          reason: 'Call dateStarted should be equal to dateUpdated');
+      expect(copyWith.dateUpdated, updated,
+          reason: 'Copied call dateUpdated should be updated');
     });
 
     test('CKCall copyWith attributes', () async {
       const id = "123";
       final attributes = <CallAttributes>{};
-      final call = CKCall.init(uuid: id, localizedName: 'handle', attributes: attributes);
+      final call = CKCall.init(
+          uuid: id, localizedName: 'handle', attributes: attributes);
       final copyWith = call.copyWith(attributes: {CallAttributes.hold});
-      expect(call.attributes, <CallAttributes>{}, reason: 'Call attributes should be empty');
+      expect(call.attributes, <CallAttributes>{},
+          reason: 'Call attributes should be empty');
       expect(copyWith.attributes, {CallAttributes.hold},
           reason: 'Copied call attributes should be {CallAttributes.hold}');
     });
@@ -86,27 +99,34 @@ void main() {
     test('CKCall copyWith attributes without', () async {
       const id = "123";
       final attributes = <CallAttributes>{CallAttributes.hold};
-      final call = CKCall.init(uuid: id, localizedName: 'handle', attributes: attributes);
+      final call = CKCall.init(
+          uuid: id, localizedName: 'handle', attributes: attributes);
       final copyWith = call.copyWith(attributes: {});
       expect(call.attributes, <CallAttributes>{CallAttributes.hold},
           reason: 'Call attributes should be {CallAttributes.hold}');
-      expect(copyWith.attributes, <CallAttributes>{}, reason: 'Copied call attributes should be {}');
+      expect(copyWith.attributes, <CallAttributes>{},
+          reason: 'Copied call attributes should be {}');
     });
 
     test('CKCall copyWith CallType.audio to CallType.video', () async {
       const id = "123";
-      final call = CKCall.init(uuid: id, localizedName: 'handle', callType: CallType.audio);
+      final call = CKCall.init(
+          uuid: id, localizedName: 'handle', callType: CallType.audio);
       final copyWith = call.copyWith(callType: CallType.video);
-      expect(call.callType, CallType.audio, reason: 'Call callType should be audio');
-      expect(copyWith.callType, CallType.video, reason: 'Copied call callType should be video');
+      expect(call.callType, CallType.audio,
+          reason: 'Call callType should be audio');
+      expect(copyWith.callType, CallType.video,
+          reason: 'Copied call callType should be video');
     });
 
     test('CKCall copyWith CallState.initiated to CallState.ringing', () async {
       const id = "123";
       final call = CKCall.init(uuid: id, localizedName: 'handle');
       final copyWith = call.copyWith(state: CallState.ringing);
-      expect(call.state, CallState.initiated, reason: 'Call callType should be initiated');
-      expect(copyWith.state, CallState.ringing, reason: 'Copied call callType should be ringing');
+      expect(call.state, CallState.initiated,
+          reason: 'Call callType should be initiated');
+      expect(copyWith.state, CallState.ringing,
+          reason: 'Copied call callType should be ringing');
     });
   });
 
@@ -118,7 +138,7 @@ void main() {
           handle: 'handle',
         );
 
-        final call = await platform.getCall('123');
+        final call = platform.getCall('123');
         expect(call, isNotNull, reason: 'Call should not be null');
         expect(call!.uuid, '123', reason: 'Call uuid should be 123');
       });
@@ -126,26 +146,29 @@ void main() {
 
     group("updateCallAttributes", () {
       test('updateCallAttributes: does not exist', () async {
-        await platform.updateCallAttributes('123', attributes: {CallAttributes.hold});
-        final call = await platform.getCall('123');
+        await platform
+            .updateCallAttributes('123', attributes: {CallAttributes.hold});
+        final call = platform.getCall('123');
         expect(call, isNull, reason: 'Call should be null');
       });
 
       test('updateCallAttributes: perform hold toggle', () async {
         const id = "123";
         await platform.reportIncomingCall(uuid: id, handle: 'handle');
-        final call = await platform.getCall(id);
+        final call = platform.getCall(id);
 
-        await platform.updateCallAttributes(id, attributes: {CallAttributes.hold});
-        final holding = await platform.getCall(id);
+        await platform
+            .updateCallAttributes(id, attributes: {CallAttributes.hold});
+        final holding = platform.getCall(id);
 
         await platform.updateCallAttributes(id, attributes: {});
-        final notholding = await platform.getCall(id);
+        final notholding = platform.getCall(id);
 
         expect(call, isNotNull, reason: 'Call should not be null');
         expect(call!.isHolding, false, reason: 'Call should not be holding');
         expect(holding!.isHolding, true, reason: 'Call should be holding');
-        expect(notholding!.isHolding, true, reason: 'Call should not be holding');
+        expect(notholding!.isHolding, true,
+            reason: 'Call should not be holding');
       });
     });
 
@@ -154,30 +177,34 @@ void main() {
     group("updateCallStatus", () {
       test('updateCallStatus: does not exist', () async {
         await platform.updateCallStatus('123', callStatus: CallState.active);
-        final call = await platform.getCall('123');
+        final call = platform.getCall('123');
         expect(call, isNull, reason: 'Call should be null');
       });
 
       test('updateCallStatus: ringing to active to ended', () async {
         const id = "123";
         await platform.reportIncomingCall(uuid: id, handle: 'handle');
-        final call = await platform.getCall(id);
+        final call = platform.getCall(id);
 
         await platform.updateCallStatus(id, callStatus: CallState.active);
-        final active = await platform.getCall(id);
+        final active = platform.getCall(id);
 
         await platform.updateCallStatus(id, callStatus: CallState.disconnected);
-        final disconnected = await platform.getCall(id);
+        final disconnected = platform.getCall(id);
 
         expect(call, isNotNull, reason: 'Call should not be null');
         expect(call!.uuid, '123', reason: 'Call uuid should be "123"');
-        expect(call.localizedName, "handle", reason: 'Call handle should be "handle"');
+        expect(call.localizedName, "handle",
+            reason: 'Call handle should be "handle"');
 
         expect(active, isNotNull, reason: 'Call active should not be null');
-        expect(active!.state, CallState.active, reason: 'Call state should be active');
+        expect(active!.state, CallState.active,
+            reason: 'Call state should be active');
 
-        expect(disconnected, isNotNull, reason: 'Call disconnected should not be null');
-        expect(disconnected!.state, CallState.disconnected, reason: 'Call state should be disconnected');
+        expect(disconnected, isNotNull,
+            reason: 'Call disconnected should not be null');
+        expect(disconnected!.state, CallState.disconnected,
+            reason: 'Call state should be disconnected');
       });
     });
   });

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:web_callkit/web_callkit.dart';
-import 'package:web_callkit/web_callkit_web.dart';
 
 class CallTypeSelector extends StatelessWidget {
   final CKCall call;
@@ -12,9 +11,9 @@ class CallTypeSelector extends StatelessWidget {
     final isAudio = call.isAudioOnly;
     final newType = isAudio ? CallType.video : CallType.audio;
     final icon = switch (newType) {
-        CallType.audio => const Icon(Icons.mic),
-        CallType.video => const Icon(Icons.videocam),
-        CallType.screenShare => const Icon(Icons.screen_share),
+      CallType.audio => const Icon(Icons.mic),
+      CallType.video => const Icon(Icons.videocam),
+      CallType.screenShare => const Icon(Icons.screen_share),
     };
     return TextButton.icon(
       style: ButtonStyle(

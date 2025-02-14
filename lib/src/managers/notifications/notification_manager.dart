@@ -21,7 +21,7 @@ abstract class NotificationManager {
   static const tag = 'notification_manager';
 
   // ignore: constant_identifier_names
-  static const String CK_EXTRA_PERSIST = "ck_persist";
+  static const String CK_EXTRA_PERSIST = CALLKIT_PERSIST;
 
   Stream<CKCallResult> get actionStream;
 

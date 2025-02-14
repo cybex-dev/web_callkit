@@ -19,8 +19,8 @@ ThemeData getThemeData(BuildContext context) {
       thickness: 1,
     ),
     listTileTheme: const ListTileThemeData(
-      titleTextStyle: const TextStyle(fontSize: 12),
-      subtitleTextStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+      titleTextStyle: TextStyle(fontSize: 12),
+      subtitleTextStyle: TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
     ),
   );
 }

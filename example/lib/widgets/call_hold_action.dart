@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:web_callkit/web_callkit.dart';
-import 'package:web_callkit/web_callkit_web.dart';
 import 'package:web_callkit_example/utils.dart';
 
 class CallHoldAction extends StatelessWidget {
@@ -13,8 +12,8 @@ class CallHoldAction extends StatelessWidget {
     final text = call.isHolding ? "Resume" : "Hold";
     return TextButton.icon(
       icon: switch (call.isHolding) {
-          true => const Icon(Icons.play_arrow),
-          false => const Icon(Icons.pause),
+        true => const Icon(Icons.play_arrow),
+        false => const Icon(Icons.pause),
       },
       label: Text(text),
       onPressed: () {

@@ -14,10 +14,11 @@ class DataGridWidget extends StatefulWidget {
     required this.currentData,
     required this.onDataToggle,
     required this.onMetaToggle,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _DataGridWidgetState createState() => _DataGridWidgetState();
 }
 
@@ -35,14 +36,12 @@ class _DataGridWidgetState extends State<DataGridWidget> {
   }
 
   void _addRow() {
-    print("Adding new row");
     setState(() {
       rows.add(const MapEntry("", ""));
     });
   }
 
   void _removeRow(int index) {
-    print("Removing row $index");
     setState(() {
       rows.removeAt(index);
       _notifyChanges();
@@ -50,7 +49,6 @@ class _DataGridWidgetState extends State<DataGridWidget> {
   }
 
   void _onKeyChanged(int index, String newKey) {
-    print("Key [$index] changed to '$newKey'");
     setState(() {
       rows[index] = MapEntry(newKey, rows[index].value);
       _notifyChanges();
@@ -58,7 +56,6 @@ class _DataGridWidgetState extends State<DataGridWidget> {
   }
 
   void _onValueChanged(int index, String newValue) {
-    print("Value [$index] changed to '$newValue'");
     setState(() {
       rows[index] = MapEntry(rows[index].key, newValue);
       _notifyChanges();
@@ -66,8 +63,11 @@ class _DataGridWidgetState extends State<DataGridWidget> {
   }
 
   void _notifyChanges() {
-    dataChecked = dataChecked.where((key) => rows.any((row) => row.key == key)).toSet();
-    metadataChecked = metadataChecked.where((key) => rows.any((row) => row.key == key)).toSet();
+    dataChecked =
+        dataChecked.where((key) => rows.any((row) => row.key == key)).toSet();
+    metadataChecked = metadataChecked
+        .where((key) => rows.any((row) => row.key == key))
+        .toSet();
     final updatedData = rows.fold<Map<String, String>>(
       {},
       (previousValue, element) => {
@@ -102,7 +102,8 @@ class _DataGridWidgetState extends State<DataGridWidget> {
             cells: [
               _buildDataCell(
                 TextField(
-                  decoration: const InputDecoration(hintText: 'New Key', border: InputBorder.none),
+                  decoration: const InputDecoration(
+                      hintText: 'New Key', border: InputBorder.none),
                   onSubmitted: (value) {
                     if (value.isNotEmpty) {
                       _addRow();
@@ -214,7 +215,15 @@ class _TextField extends StatefulWidget {
   final ValueChanged? onFocusChanged;
   final ValueChanged<String>? onBackspace;
 
-  const _TextField({super.key, this.onChanged, this.onSubmitted, required this.value, this.hintText, this.onFocusChanged, this.onBackspace});
+  // ignore: unused_element
+  const _TextField(
+      {super.key,
+      this.onChanged,
+      this.onSubmitted,
+      required this.value,
+      this.hintText,
+      this.onFocusChanged,
+      this.onBackspace});
 
   @override
   State<_TextField> createState() => _TextFieldState();
@@ -240,8 +249,8 @@ class _TextFieldState extends State<_TextField> {
   }
 
   KeyEventResult _onKeyEvent(FocusNode node, KeyEvent event) {
-    if (event is KeyUpEvent && event.logicalKey == LogicalKeyboardKey.backspace) {
-      print("Backspace pressed");
+    if (event is KeyUpEvent &&
+        event.logicalKey == LogicalKeyboardKey.backspace) {
       widget.onBackspace?.call(controller.text);
     }
     return KeyEventResult.ignored;

@@ -1,13 +1,17 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import '../core/core.dart';
-import '../models/models.dart';
 import '../method_channel/web_callkit_method_channel.dart';
+import '../models/models.dart';
 
-typedef OnDisconnectListener = void Function(String uuid, DisconnectResponse response, ActionSource source);
-typedef OnCallTypeChangeListener = void Function(CallEvent event, CallType callType, ActionSource source);
-typedef OnCallEventListener = void Function(CallEvent event, ActionSource source);
-typedef OnCallActionListener = void Function(String uuid, CKCallAction action, ActionSource source);
+typedef OnDisconnectListener = void Function(
+    String uuid, DisconnectResponse response, ActionSource source);
+typedef OnCallTypeChangeListener = void Function(
+    CallEvent event, CallType callType, ActionSource source);
+typedef OnCallEventListener = void Function(
+    CallEvent event, ActionSource source);
+typedef OnCallActionListener = void Function(
+    String uuid, CKCallAction action, ActionSource source);
 typedef OnDismissedListener = void Function(String uuid, ActionSource source);
 
 abstract class WebCallkitPlatform extends PlatformInterface {
@@ -34,7 +38,6 @@ abstract class WebCallkitPlatform extends PlatformInterface {
   /// platform-specific class that extends [WebCallkitPlatform] when
   /// they register themselves.
   static set instance(WebCallkitPlatform instance) {
-    print("WebCallkitPlatform.instance");
     PlatformInterface.verifyToken(instance, _token);
     _instance = instance;
   }
@@ -48,7 +51,8 @@ abstract class WebCallkitPlatform extends PlatformInterface {
 
   void setOnCallActionHandler(OnCallActionListener onCallActionListener);
 
-  void setOnCallTypeChangeListener(OnCallTypeChangeListener onCallTypeChangeListener);
+  void setOnCallTypeChangeListener(
+      OnCallTypeChangeListener onCallTypeChangeListener);
 
   void setOnDismissedListener(OnDismissedListener onDismissedListener);
 

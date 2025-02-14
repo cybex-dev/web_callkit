@@ -3,9 +3,9 @@ import '../../models/models.dart';
 import 'notification_manager.dart';
 
 class NotificationManagerImpl implements NotificationManager {
-  static final NotificationManager _instance = NotificationManagerImpl._internal();
+  static final NotificationManager _instance =
+      NotificationManagerImpl._internal();
 
-  @override
   NotificationManager get instance => _instance;
 
   // Private named constructor
@@ -38,7 +38,10 @@ class NotificationManagerImpl implements NotificationManager {
   }
 
   @override
-  Future<void> callEnded(String uuid, {required String callerId, CallType callType = CallType.audio, DateTime? startTime}) {
+  Future<void> callEnded(String uuid,
+      {required String callerId,
+      CallType callType = CallType.audio,
+      DateTime? startTime}) {
     // TODO: implement callEnded
     throw UnimplementedError();
   }

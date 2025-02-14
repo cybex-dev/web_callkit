@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:web_callkit/web_callkit.dart';
-import 'package:web_callkit/web_callkit_web.dart';
 import 'package:web_callkit_example/widgets/ck_call_log.dart';
 
 import '../../widgets/ck_card.dart';
@@ -19,10 +18,10 @@ class SimpleScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          Expanded(
+          const Expanded(
             child: CKCard(
-              title: const HeaderText("Simple Call"),
-              description: const Text(
+              title: HeaderText("Simple Call"),
+              description: Text(
                 "Show a simple call dialog with a name and a number, will automatically disconnect after 10 seconds if not dismissed already.",
               ),
               child: _Content(),
@@ -40,6 +39,7 @@ class SimpleScreen extends StatelessWidget {
 }
 
 class _Content extends StatefulWidget {
+  // ignore: unused_element
   const _Content({super.key});
 
   @override
@@ -75,7 +75,8 @@ class _ContentState extends State<_Content> {
                   _future = Future.delayed(
                     Duration(seconds: seconds),
                     () {
-                      webCallkitPlugin.reportCallDisconnected(callId, response: DisconnectResponse.local);
+                      webCallkitPlugin.reportCallDisconnected(callId,
+                          response: DisconnectResponse.local);
                     },
                   );
                 }
@@ -85,7 +86,8 @@ class _ContentState extends State<_Content> {
             const SizedBox(width: 8),
             ElevatedButton(
               onPressed: () async {
-                await webCallkitPlugin.reportCallDisconnected(callId, response: DisconnectResponse.local);
+                await webCallkitPlugin.reportCallDisconnected(callId,
+                    response: DisconnectResponse.local);
               },
               child: const Text('Report Call Disconnected'),
             ),
@@ -124,5 +126,11 @@ class _ContentState extends State<_Content> {
         )
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    _future?.ignore();
+    super.dispose();
   }
 }

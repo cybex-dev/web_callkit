@@ -1,6 +1,5 @@
-import 'package:web_callkit/src/managers/managers.dart';
-import 'package:web_callkit/src/models/models.dart';
 import 'package:web_callkit/src/core/core.dart';
+import 'package:web_callkit/src/models/models.dart';
 
 class CKConfiguration {
   final CKSounds sounds;

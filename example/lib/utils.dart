@@ -55,11 +55,13 @@ extension MapExtensions<K, V> on Map<K, V> {
   }
 
   Map<K, V> where(bool Function(K key, V value) test) {
-    return Map<K, V>.fromEntries(entries.where((entry) => test(entry.key, entry.value)));
+    return Map<K, V>.fromEntries(
+        entries.where((entry) => test(entry.key, entry.value)));
   }
 
   Map<String, String> toStringMap() {
-    return Map<String, String>.fromEntries(entries.map((entry) => MapEntry(entry.key.toString(), entry.value.toString())));
+    return Map<String, String>.fromEntries(entries.map(
+        (entry) => MapEntry(entry.key.toString(), entry.value.toString())));
   }
 }
 

@@ -13,8 +13,7 @@ export './src/core/enums/enums.dart';
 
 /// A web implementation of the WebCallkitPlatform of the WebCallkit plugin.
 class WebCallkitWeb extends MethodChannelWebCallkit {
-
-  WebCallkitWeb({super.configuration}): super(notificationManager: NotificationManagerImplWeb());
+  WebCallkitWeb({super.configuration}) : super(notificationManager: NotificationManagerImplWeb());
 
   static void registerWith(Registrar registrar) {
     WebCallkitPlatform.instance = WebCallkitWeb();

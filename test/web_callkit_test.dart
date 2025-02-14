@@ -1,6 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:web_callkit/src/method_channel/web_callkit_method_channel.dart';
-import 'package:web_callkit/src/platform_interface/web_callkit_platform_interface.dart';
 
 // class MockWebCallkitPlatform
 //     with MockPlatformInterfaceMixin

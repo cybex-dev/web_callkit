@@ -18,8 +18,10 @@ enum CKCallAction {
 
   static CKCallAction? fromString(String action) {
     final lower = action.sanitizeEnum();
-    return values.firstWhere((element) => element.name.sanitizeEnum() == lower, orElse: () {
-      printDebug("CKCallAction not found for '$action' (sanitized to '$lower')");
+    return values.firstWhere((element) => element.name.sanitizeEnum() == lower,
+        orElse: () {
+      printDebug(
+          "CKCallAction not found for '$action' (sanitized to '$lower')");
       printDebug("Returning CKCallAction.none");
       return CKCallAction.none;
     });

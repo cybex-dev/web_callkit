@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 typedef MapResult<T, R> = R Function(T key);
 
 extension MapExt<T, R> on Map<T, R> {
@@ -33,7 +31,8 @@ extension DurationExtensions on Duration {
 }
 
 extension StringExt on String {
-  String replaceCharacters({List<String> chars = const [], String newChar = ""}) {
+  String replaceCharacters(
+      {List<String> chars = const [], String newChar = ""}) {
     if (isEmpty || chars.isEmpty) {
       return this;
     }

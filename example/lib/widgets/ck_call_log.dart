@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:web_callkit/web_callkit.dart';
-import 'package:web_callkit/web_callkit_web.dart';
 import 'package:web_callkit_example/widgets/ck_card.dart';
 
-typedef CallLogWidgetBuilder = Widget Function(BuildContext context, CallEvent event);
+typedef CallLogWidgetBuilder = Widget Function(
+    BuildContext context, CallEvent event);
 
 class CKCallLog extends StatefulWidget {
   final CallLogWidgetBuilder builder;
@@ -19,7 +19,8 @@ class CKCallLog extends StatefulWidget {
       };
       return Row(
         children: [
-          Text(event.timestamp.toString(), style: const TextStyle(fontSize: 10)),
+          Text(event.timestamp.toString(),
+              style: const TextStyle(fontSize: 10)),
           const SizedBox(width: 4),
           Icon(icon),
           const SizedBox(width: 4),

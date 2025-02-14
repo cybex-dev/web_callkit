@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:simple_print/simple_print.dart';
@@ -56,7 +55,8 @@ class CallManager {
   /// get call by uuid
   CKCall? getCall(String uuid) {
     if (!_calls.containsKey(uuid)) {
-      printDebug("Failed to get call with uuid: $uuid. Call not found.", tag: tag);
+      printDebug("Failed to get call with uuid: $uuid. Call not found.",
+          tag: tag);
       return null;
     }
 
@@ -90,7 +90,8 @@ class CallManager {
   void removeCall(String uuid) {
     final call = _calls.remove(uuid);
     if (call == null) {
-      printDebug("Failed to remove call with uuid: $uuid. Call not found.", tag: tag);
+      printDebug("Failed to remove call with uuid: $uuid. Call not found.",
+          tag: tag);
       return;
     }
 
@@ -148,11 +149,15 @@ class CallManager {
     if (_calls.containsKey(call.uuid)) {
       final existing = _calls[call.uuid];
       if (existing != null) {
-        printDebug("Call with uuid: ${call.uuid} already exists. Updating call instead.", tag: tag);
+        printDebug(
+            "Call with uuid: ${call.uuid} already exists. Updating call instead.",
+            tag: tag);
         updateCall(call);
         return;
       } else {
-        printDebug("Call with uuid: ${call.uuid} already exists but existing call is null.", tag: tag);
+        printDebug(
+            "Call with uuid: ${call.uuid} already exists but existing call is null.",
+            tag: tag);
       }
     }
     _calls[call.uuid] = call;
@@ -171,7 +176,8 @@ class CallManager {
   /// Remove call from internal call map
   void _removeCall(String uuid) {
     if (!_calls.containsKey(uuid)) {
-      printDebug("Failed to remove call with uuid: $uuid. Call not found.", tag: tag);
+      printDebug("Failed to remove call with uuid: $uuid. Call not found.",
+          tag: tag);
       // return;
     }
     _calls.remove(uuid);
@@ -179,7 +185,9 @@ class CallManager {
 
   /// Check if there are any active calls, as defined by "active" call states in [_definesActiveCalls].
   bool get hasActiveCalls {
-    return calls.values.map((event) => event.state).any((event) => _definesActiveCalls.contains(event));
+    return calls.values
+        .map((event) => event.state)
+        .any((event) => _definesActiveCalls.contains(event));
   }
 
 //endregion

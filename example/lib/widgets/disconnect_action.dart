@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:web_callkit/web_callkit.dart';
-import 'package:web_callkit/web_callkit_web.dart';
 
 class DisconnectAction extends StatelessWidget {
   final String uuid;
   final DisconnectResponse response;
 
-  const DisconnectAction({super.key, required this.uuid, this.response = DisconnectResponse.local});
+  const DisconnectAction(
+      {super.key,
+      required this.uuid,
+      this.response = DisconnectResponse.local});
 
   factory DisconnectAction.error(String uuid) {
     return DisconnectAction(uuid: uuid, response: DisconnectResponse.error);

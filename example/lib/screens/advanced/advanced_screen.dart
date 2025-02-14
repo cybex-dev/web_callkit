@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:web_callkit/web_callkit.dart';
-import 'package:web_callkit/web_callkit_web.dart';
 import 'package:web_callkit_example/utils.dart';
 
 import '../../widgets/ck_card.dart';
@@ -38,6 +37,7 @@ class AdvancedScreen extends StatelessWidget {
 }
 
 class _Content extends StatefulWidget {
+  // ignore: unused_element
   const _Content({super.key});
 
   @override
@@ -71,17 +71,21 @@ class _ContentState extends State<_Content> {
         child: ElevatedButton(
           onPressed: _hasCall
               ? () async {
-                  final call = await webCallkitPlugin.getCall(callId);
+                  final call = webCallkitPlugin.getCall(callId);
                   if (call == null) {
                     return;
                   }
-                  final cap =
-                      call.capabilities.contains(e) ? call.capabilities.removeWith(e) : call.capabilities.addWith(e);
-                  await webCallkitPlugin.updateCallCapabilities(callId, capabilities: cap);
+                  final cap = call.capabilities.contains(e)
+                      ? call.capabilities.removeWith(e)
+                      : call.capabilities.addWith(e);
+                  await webCallkitPlugin.updateCallCapabilities(callId,
+                      capabilities: cap);
                 }
               : null,
           style: ElevatedButton.styleFrom(
-            backgroundColor: _hasCall && _call!.capabilities.contains(e) ? Colors.green : Colors.transparent,
+            backgroundColor: _hasCall && _call!.capabilities.contains(e)
+                ? Colors.green
+                : Colors.transparent,
             foregroundColor: Colors.white,
           ),
           child: Text(e.name.capitalize()),
@@ -92,7 +96,9 @@ class _ContentState extends State<_Content> {
       return Padding(
         padding: const EdgeInsets.all(4.0),
         child: ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.orangeAccent, foregroundColor: Colors.white),
+          style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orangeAccent,
+              foregroundColor: Colors.white),
           onPressed: _hasCall && _call!.callType != e
               ? () async {
                   await webCallkitPlugin.updateCallType(callId, callType: e);
@@ -106,10 +112,13 @@ class _ContentState extends State<_Content> {
       return Padding(
         padding: const EdgeInsets.all(4.0),
         child: ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurpleAccent, foregroundColor: Colors.white),
+          style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.deepPurpleAccent,
+              foregroundColor: Colors.white),
           onPressed: _hasCall && _call!.state != e
               ? () async {
-                  await webCallkitPlugin.updateCallStatus(callId, callStatus: e);
+                  await webCallkitPlugin.updateCallStatus(callId,
+                      callStatus: e);
                 }
               : null,
           child: Text(e.name.capitalize()),
@@ -140,7 +149,6 @@ class _ContentState extends State<_Content> {
                 },
                 child: const Text('Report Outgoing Call'),
               ),
-
               const SizedBox(width: 8),
               ElevatedButton(
                 onPressed: () async {
@@ -156,7 +164,6 @@ class _ContentState extends State<_Content> {
                 },
                 child: const Text('Report Ongoing Call'),
               ),
-
               const SizedBox(width: 8),
               ElevatedButton(
                 onPressed: () async {
@@ -171,14 +178,15 @@ class _ContentState extends State<_Content> {
                 },
                 child: const Text('Report Incoming Call'),
               ),
-
               const SizedBox(width: 8),
               ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red, foregroundColor: Colors.white),
                 icon: const Icon(Icons.call_end),
                 onPressed: _hasCall
                     ? () async {
-                        await webCallkitPlugin.reportCallDisconnected(callId, response: DisconnectResponse.local);
+                        await webCallkitPlugin.reportCallDisconnected(callId,
+                            response: DisconnectResponse.local);
                       }
                     : null,
                 label: const Text('Report Call Disconnected'),
@@ -192,34 +200,46 @@ class _ContentState extends State<_Content> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
-                onPressed:
-                    _hasCall && !_call!.isHolding && (_call!.hasCapabilityHold || _call!.hasCapabilitySupportsHold)
-                        ? () async {
-                            final call = await webCallkitPlugin.getCall(callId);
-                            if (call == null) {
-                              return;
-                            }
-                            final attr = call.attributes.addWith(CallAttributes.hold);
-                            await webCallkitPlugin.updateCallAttributes(callId, attributes: attr);
-                          }
-                        : null,
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white),
+                onPressed: _hasCall &&
+                        !_call!.isHolding &&
+                        (_call!.hasCapabilityHold ||
+                            _call!.hasCapabilitySupportsHold)
+                    ? () async {
+                        final call = webCallkitPlugin.getCall(callId);
+                        if (call == null) {
+                          return;
+                        }
+                        final attr =
+                            call.attributes.addWith(CallAttributes.hold);
+                        await webCallkitPlugin.updateCallAttributes(callId,
+                            attributes: attr);
+                      }
+                    : null,
                 child: const Text("Hold"),
               ),
               const SizedBox(width: 8),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
-                onPressed:
-                    _hasCall && _call!.isHolding && (_call!.hasCapabilityHold || _call!.hasCapabilitySupportsHold)
-                        ? () async {
-                            final call = await webCallkitPlugin.getCall(callId);
-                            if (call == null) {
-                              return;
-                            }
-                            final attr = call.attributes.removeWith(CallAttributes.hold);
-                            await webCallkitPlugin.updateCallAttributes(callId, attributes: attr);
-                          }
-                        : null,
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white),
+                onPressed: _hasCall &&
+                        _call!.isHolding &&
+                        (_call!.hasCapabilityHold ||
+                            _call!.hasCapabilitySupportsHold)
+                    ? () async {
+                        final call = webCallkitPlugin.getCall(callId);
+                        if (call == null) {
+                          return;
+                        }
+                        final attr =
+                            call.attributes.removeWith(CallAttributes.hold);
+                        await webCallkitPlugin.updateCallAttributes(callId,
+                            attributes: attr);
+                      }
+                    : null,
                 child: const Text("Resume"),
               ),
             ],
@@ -232,32 +252,42 @@ class _ContentState extends State<_Content> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.purple, foregroundColor: Colors.white),
-                onPressed: _hasCall && !_call!.isMuted && _call!.hasCapabilityMute
-                    ? () async {
-                        final call = await webCallkitPlugin.getCall(callId);
-                        if (call == null) {
-                          return;
-                        }
-                        final attr = call.attributes.addWith(CallAttributes.mute);
-                        await webCallkitPlugin.updateCallAttributes(callId, attributes: attr);
-                      }
-                    : null,
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple,
+                    foregroundColor: Colors.white),
+                onPressed:
+                    _hasCall && !_call!.isMuted && _call!.hasCapabilityMute
+                        ? () async {
+                            final call = webCallkitPlugin.getCall(callId);
+                            if (call == null) {
+                              return;
+                            }
+                            final attr =
+                                call.attributes.addWith(CallAttributes.mute);
+                            await webCallkitPlugin.updateCallAttributes(callId,
+                                attributes: attr);
+                          }
+                        : null,
                 child: const Text("Mute"),
               ),
               const SizedBox(width: 8),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.purple, foregroundColor: Colors.white),
-                onPressed: _hasCall && _call!.isMuted && _call!.hasCapabilityMute
-                    ? () async {
-                        final call = await webCallkitPlugin.getCall(callId);
-                        if (call == null) {
-                          return;
-                        }
-                        final attr = call.attributes.removeWith(CallAttributes.mute);
-                        await webCallkitPlugin.updateCallAttributes(callId, attributes: attr);
-                      }
-                    : null,
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple,
+                    foregroundColor: Colors.white),
+                onPressed:
+                    _hasCall && _call!.isMuted && _call!.hasCapabilityMute
+                        ? () async {
+                            final call = webCallkitPlugin.getCall(callId);
+                            if (call == null) {
+                              return;
+                            }
+                            final attr =
+                                call.attributes.removeWith(CallAttributes.mute);
+                            await webCallkitPlugin.updateCallAttributes(callId,
+                                attributes: attr);
+                          }
+                        : null,
                 child: const Text("Unmute"),
               ),
             ],
@@ -308,7 +338,8 @@ class _ContentState extends State<_Content> {
               ElevatedButton(
                 onPressed: _hasCall
                     ? () async {
-                        await webCallkitPlugin.updateCallData(callId, data: {"key": "value"});
+                        await webCallkitPlugin
+                            .updateCallData(callId, data: {"key": "value"});
                       }
                     : null,
                 child: const Text("Set Data"),
@@ -317,13 +348,15 @@ class _ContentState extends State<_Content> {
               ElevatedButton(
                 onPressed: _hasCall
                     ? () async {
-                        final call = await webCallkitPlugin.getCall(callId);
+                        final call = webCallkitPlugin.getCall(callId);
                         if (call == null) {
                           return;
                         }
                         final data = call.data ?? {};
-                        data.update("key", (value) => "value2", ifAbsent: () => "value3");
-                        await webCallkitPlugin.updateCallData(callId, data: data);
+                        data.update("key", (value) => "value2",
+                            ifAbsent: () => "value3");
+                        await webCallkitPlugin.updateCallData(callId,
+                            data: data);
                       }
                     : null,
                 child: const Text("Update Data"),
@@ -332,13 +365,14 @@ class _ContentState extends State<_Content> {
               ElevatedButton(
                 onPressed: _hasCall
                     ? () async {
-                        final call = await webCallkitPlugin.getCall(callId);
+                        final call = webCallkitPlugin.getCall(callId);
                         if (call == null) {
                           return;
                         }
                         final data = call.data ?? {};
                         data.remove("key");
-                        await webCallkitPlugin.updateCallData(callId, data: data);
+                        await webCallkitPlugin.updateCallData(callId,
+                            data: data);
                       }
                     : null,
                 child: const Text("Remove Data"),

@@ -5,7 +5,6 @@ class AudioManager {
 }
 
 class AudioPlayer {
-
   static const tag = 'audio_player';
 
   static final AudioPlayer _instance = AudioPlayer._();
@@ -16,13 +15,14 @@ class AudioPlayer {
 
   final html.AudioElement _audioElement = html.AudioElement();
 
-  void play(String url, {bool loop = true, double volume = 1.0, bool restart = true}) {
-    if(isPlaying) {
+  void play(String url,
+      {bool loop = true, double volume = 1.0, bool restart = true}) {
+    if (isPlaying) {
       stop();
     }
 
     _audioElement.src = url;
-    if(restart || _audioElement.src != url) {
+    if (restart || _audioElement.src != url) {
       _audioElement.currentTime = 0;
     }
     _audioElement.muted = false;
