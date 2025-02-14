@@ -24,6 +24,10 @@ A bird's eye overview/usage of the plugin:
 - Support background calls
 - Custom audio sounds for incoming calls, etc.
 
+### Call State flow
+
+![](https://raw.githubusercontent.com/cybex-dev/web_callkit/refs/heads/master/doc/images/callflow.png)
+
 ## Limitations
 
 ### Browser notifications
