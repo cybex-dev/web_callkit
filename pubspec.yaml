@@ -1,7 +1,15 @@
 name: web_callkit
-description: "Manage calls with an iOS-inspired Android-based web callkit"
+description: "Manage calls with an iOS-inspired Callkit for Flutter Web"
 version: 0.0.1
-homepage:
+homepage: "https://github.com/cybex-dev/web_callkit"
+platforms:
+  web:
+topics:
+  - voip
+  - callkit
+  - call
+  - notifications
+  - audio-call
 
 environment:
   sdk: '>=3.4.0 <4.0.0'
