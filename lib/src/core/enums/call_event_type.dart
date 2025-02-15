@@ -11,8 +11,8 @@ enum CallEventType {
         return '~';
       case CallEventType.remove:
         return '-';
-      default:
-        return '?';
+      // default:
+      //   return '?';
     }
   }
 }
