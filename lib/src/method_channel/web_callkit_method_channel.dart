@@ -612,9 +612,9 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
         _dismissNotification(result.uuid);
         break;
 
-      default:
-        printDebug("Unknown action: ${result.action}", tag: tag);
-        break;
+      // default:
+      //   printDebug("Unknown action: ${result.action}", tag: tag);
+      //   break;
     }
   }
 
