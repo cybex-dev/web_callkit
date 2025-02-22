@@ -87,7 +87,7 @@ class CallManager {
   }
 
   /// remove call from call manager if call exists, triggers update event
-  void removeCall(String uuid) {
+  void removeCall(String uuid, {required DisconnectResponse response}) {
     final call = _calls.remove(uuid);
     if (call == null) {
       printDebug("Failed to remove call with uuid: $uuid. Call not found.",
@@ -95,7 +95,7 @@ class CallManager {
       return;
     }
 
-    final event = CallEvent.remove(call);
+    final event = DisconnectCallEvent.reason(call, response: response);
     _addEvent(event);
   }
 

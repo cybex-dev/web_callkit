@@ -40,6 +40,31 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   @visibleForTesting
   final methodChannel = const MethodChannel('web_callkit');
 
+  final Map<CallState, List<DisconnectResponse>> validCallStateDisconnectResponses = {
+    CallState.initiated: [
+      DisconnectResponse.unknown,
+      DisconnectResponse.error,
+      DisconnectResponse.local,
+      DisconnectResponse.remote,
+      DisconnectResponse.canceled,
+      DisconnectResponse.rejected,
+      DisconnectResponse.busy
+    ],
+    CallState.ringing: [
+      DisconnectResponse.unknown,
+      DisconnectResponse.error,
+      DisconnectResponse.remote,
+      DisconnectResponse.missed,
+      DisconnectResponse.rejected,
+      DisconnectResponse.busy
+    ],
+    CallState.dialing: [DisconnectResponse.unknown, DisconnectResponse.error, DisconnectResponse.local, DisconnectResponse.rejected, DisconnectResponse.busy],
+    CallState.active: [DisconnectResponse.unknown, DisconnectResponse.error, DisconnectResponse.local, DisconnectResponse.remote],
+    CallState.reconnecting: [DisconnectResponse.unknown, DisconnectResponse.error, DisconnectResponse.local, DisconnectResponse.remote],
+    CallState.disconnecting: [DisconnectResponse.unknown, DisconnectResponse.error, DisconnectResponse.local, DisconnectResponse.remote],
+    CallState.disconnected: [DisconnectResponse.unknown, DisconnectResponse.error, DisconnectResponse.local, DisconnectResponse.remote],
+  };
+
   MethodChannelWebCallkit({
     AudioManager? audioManager,
     CallManager? callManager,
@@ -218,12 +243,21 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   }
 
   @override
-  Future<void> reportCallDisconnected(
-    String uuid, {
+  Future<void> reportCallDisconnected(String uuid, {
     required DisconnectResponse response,
   }) async {
-    _callManager.removeCall(uuid);
-    await _notificationManager.dismiss(uuid: uuid);
+    // state check for response
+    final call = _callManager.getCall(uuid);
+    if (call == null) {
+      printDebug("Call not found: $uuid", tag: tag);
+      return;
+    }
+    final validResponses = validCallStateDisconnectResponses[call.state] ?? DisconnectResponse.values;
+    if (!validResponses.contains(response)) {
+      printWarning("Invalid response for call state: ${call.state}", tag: tag);
+      return;
+    }
+    _callManager.removeCall(uuid, response: response);
   }
 
   @override
@@ -644,7 +678,10 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
         // dismiss/remove notification
         // ignore: unused_local_variable
         final call = event.call;
-        // _notificationManager.dismiss(uuid: event.uuid);
+        _notificationManager.dismiss(uuid: event.uuid);
+        if (event is DisconnectCallEvent) {
+          _onDisconnectListener?.call(event.uuid, event.response, ActionSource.api);
+        }
         break;
     }
 

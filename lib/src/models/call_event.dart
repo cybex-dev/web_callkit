@@ -28,3 +28,18 @@ class CallEvent {
     return '${type.symbol} CallEvent{uuid: $uuid, type: $type, call: $call, date: $timestamp}';
   }
 }
+
+class DisconnectCallEvent extends CallEvent {
+  final DisconnectResponse response;
+
+  DisconnectCallEvent(String uuid, CKCall call, {required this.response}): super(uuid, CallEventType.remove, call);
+
+  factory DisconnectCallEvent.reason(CKCall call, {DisconnectResponse response = DisconnectResponse.local}) {
+    return DisconnectCallEvent(call.uuid, call, response: response);
+  }
+
+  @override
+  String toString() {
+    return '${type.symbol} DisconnectCallEvent{uuid: $uuid, type: $type, call: $call, response: $response, date: $timestamp}';
+  }
+}
