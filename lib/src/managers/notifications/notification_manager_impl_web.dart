@@ -372,7 +372,7 @@ class NotificationManagerImplWeb extends NotificationManagerImpl {
     required String callerId,
     CallType callType = CallType.audio,
     DateTime? startTime,
-  }) {
+  }) async {
     final options = JSNotificationOptions(
       tag: uuid,
       body: _getCallDescription(CallState.disconnected, callType: callType),
@@ -382,7 +382,13 @@ class NotificationManagerImplWeb extends NotificationManagerImpl {
     );
 
     JSNotification notification = JSNotification(callerId, options);
-    return _addNotification(uuid, notification);
+    await _addNotification(uuid, notification);
+
+    if (_notificationTimers.containsKey(uuid)) {
+      final timer = _notificationTimers[uuid];
+      timer?.stop();
+      _notificationTimers.remove(uuid);
+    }
   }
 
   // ignore: unused_element
