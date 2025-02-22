@@ -99,6 +99,11 @@ class _CustomCallCardState extends State<_CustomCallCard> {
                   const Divider(),
 
                   // Hold/resume call
+                  _DisconnectResponses(callId: callId),
+                  const SizedBox(width: 8),
+                  const Divider(),
+
+                  // Hold/resume call
                   _CallHoldSelector(callId: callId),
                   const SizedBox(width: 8),
                   const Divider(),
@@ -380,6 +385,40 @@ class _CallActionButtons extends StatelessWidget {
           child: const Text('Report Call Disconnected'),
         ),
       ],
+    );
+  }
+}
+
+class _DisconnectResponses extends StatelessWidget {
+  final String callId;
+
+  // ignore: unused_element
+  const _DisconnectResponses({super.key, required this.callId});
+
+  @override
+  Widget build(BuildContext context) {
+    final webCallkitPlugin = WebCallkit.instance;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: DisconnectResponse.values.map((e) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            onPressed: () async {
+              await webCallkitPlugin.reportCallDisconnected(callId, response: e);
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.call_end, color: Colors.white),
+                const SizedBox(width: 4),
+                Text(e.name),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }
