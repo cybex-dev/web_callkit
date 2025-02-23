@@ -23,8 +23,7 @@ class NotificationManagerImplWeb extends NotificationManagerImpl {
   /// Internal notification timers
   final Map<String, CallTimer> _notificationTimers = {};
 
-  static final NotificationManager _instance =
-      NotificationManagerImplWeb._internal();
+  static final NotificationManager _instance = NotificationManagerImplWeb._internal();
 
   @override
   NotificationManager get instance => _instance;
@@ -34,30 +33,23 @@ class NotificationManagerImplWeb extends NotificationManagerImpl {
     _setupRefreshStream();
   }
 
-  factory NotificationManagerImplWeb() =>
-      NotificationManagerImplWeb._internal();
+  factory NotificationManagerImplWeb() => NotificationManagerImplWeb._internal();
 
   @override
   Stream<CKCallResult> get actionStream {
-    _actionStream ??= jsNotifications.actionStream
-        .map(CKCallResult.fromResult)
-        .asBroadcastStream();
+    _actionStream ??= jsNotifications.actionStream.map(CKCallResult.fromResult).asBroadcastStream();
     return _actionStream!;
   }
 
   @override
   Stream<CKCallResult> get dismissStream {
-    _dismissStream ??= jsNotifications.dismissStream
-        .map(CKCallResult.fromResult)
-        .asBroadcastStream();
+    _dismissStream ??= jsNotifications.dismissStream.map(CKCallResult.fromResult).asBroadcastStream();
     return _dismissStream!;
   }
 
   @override
   Stream<CKCallResult> get tapStream {
-    _tapStream ??= jsNotifications.tapStream
-        .map(CKCallResult.fromResult)
-        .asBroadcastStream();
+    _tapStream ??= jsNotifications.tapStream.map(CKCallResult.fromResult).asBroadcastStream();
     return _tapStream!;
   }
 
@@ -73,15 +65,13 @@ class NotificationManagerImplWeb extends NotificationManagerImpl {
   /// Stream to listen for action or dismiss stream events, reposts/refreshes notifications unless a dismiss/cancel action is received
   void _setupRefreshStream() {
     _actionStreamSubscription = actionStream.listen((event) {
-      printDebug("Action Stream: ${event.action}",
-          tag: NotificationManager.tag);
+      printDebug("Action Stream: ${event.action}", tag: NotificationManager.tag);
       switch (event.action) {
         case CKCallAction.dismiss:
           // dismiss(uuid: event.uuid);
           break;
         default:
-          final persist =
-              event.containsFlag(NotificationManager.CK_EXTRA_PERSIST, false);
+          final persist = event.containsFlag(NotificationManager.CK_EXTRA_PERSIST, false);
           printDebug("Unhandled action: ${event.action}, persist: $persist");
           // if (persist) {
           //   switch (event.action) {
@@ -110,13 +100,11 @@ class NotificationManagerImplWeb extends NotificationManagerImpl {
     // });
 
     _tapStreamSubscription = tapStream.listen((event) {
-      printDebug("Tapped notification: ${event.uuid}",
-          tag: NotificationManager.tag);
+      printDebug("Tapped notification: ${event.uuid}", tag: NotificationManager.tag);
     });
   }
 
-  void _onTimerTick(String uuid, int tick, CallProvider callProvider,
-      {CallState? startOn}) {
+  void _onTimerTick(String uuid, int tick, CallProvider callProvider, {CallState? startOn}) {
     CKNotification? ckNotification = _notifications[uuid];
     if (ckNotification == null) {
       return;
@@ -134,11 +122,7 @@ class NotificationManagerImplWeb extends NotificationManagerImpl {
     final state = call.state;
     final muted = call.isMuted;
     final holding = call.isHolding;
-    final desc = _getCallDescription(state,
-        callType: call.callType,
-        timestamp: call.dateStarted,
-        muted: muted,
-        holding: holding);
+    final desc = _getCallDescription(state, callType: call.callType, timestamp: call.dateStarted, muted: muted, holding: holding);
 
     final current = ckNotification.notification;
     final updated = current.copyWith(
@@ -183,11 +167,9 @@ class NotificationManagerImplWeb extends NotificationManagerImpl {
         JSNotificationAction.fromAction('decline'),
         if (hasVideoCapability)
           if (callType == CallType.audio)
-            const JSNotificationAction(
-                title: "Switch to Video", action: "switch-video")
+            const JSNotificationAction(title: "Switch to Video", action: "switch-video")
           else
-            const JSNotificationAction(
-                title: "Switch to Audio", action: "switch-audio"),
+            const JSNotificationAction(title: "Switch to Audio", action: "switch-audio"),
         if (enableMuteAction) JSNotificationAction.fromAction('mute'),
         if (enableHoldAction) JSNotificationAction.fromAction('hold'),
       ],
@@ -198,8 +180,7 @@ class NotificationManagerImplWeb extends NotificationManagerImpl {
     if (onCallProvider != null && timer) {
       _addAndStartCallTimer(
         uuid: uuid,
-        onTimerTick: (tick) => _onTimerTick(uuid, tick, onCallProvider,
-            startOn: timerStartOnState),
+        onTimerTick: (tick) => _onTimerTick(uuid, tick, onCallProvider, startOn: timerStartOnState),
       );
     }
   }
@@ -228,14 +209,12 @@ class NotificationManagerImplWeb extends NotificationManagerImpl {
     if (startTime != null && startTime.isBefore(DateTime.now())) {
       elapsed = DateTime.now().difference(startTime);
     }
-    if (_notificationTimers.containsKey(uuid) &&
-        _notificationTimers[uuid] != null) {
+    if (_notificationTimers.containsKey(uuid) && _notificationTimers[uuid] != null) {
       final timer = _notificationTimers[uuid]!;
       timer.setOnTick(onTimerTick);
       timer.start();
     } else {
-      _notificationTimers[uuid] =
-          CallTimer(elapsed: elapsed, onTimerTick: onTimerTick)..start();
+      _notificationTimers[uuid] = CallTimer(elapsed: elapsed, onTimerTick: onTimerTick)..start();
     }
   }
 
@@ -269,11 +248,9 @@ class NotificationManagerImplWeb extends NotificationManagerImpl {
         const JSNotificationAction(title: 'Hang Up', action: 'hangup'),
         if (hasVideoCapability)
           if (callType == CallType.audio)
-            const JSNotificationAction(
-                title: "Switch to Video", action: "switch-video")
+            const JSNotificationAction(title: "Switch to Video", action: "switch-video")
           else
-            const JSNotificationAction(
-                title: "Switch to Audio", action: "switch-audio"),
+            const JSNotificationAction(title: "Switch to Audio", action: "switch-audio"),
         if (enableMuteAction) JSNotificationAction.fromAction('mute'),
         if (enableHoldAction) JSNotificationAction.fromAction('hold'),
       ],
@@ -284,8 +261,7 @@ class NotificationManagerImplWeb extends NotificationManagerImpl {
     if (onCallProvider != null && timer) {
       _addAndStartCallTimer(
         uuid: uuid,
-        onTimerTick: (tick) => _onTimerTick(uuid, tick, onCallProvider,
-            startOn: timerStartOnState),
+        onTimerTick: (tick) => _onTimerTick(uuid, tick, onCallProvider, startOn: timerStartOnState),
       );
     }
   }
@@ -294,8 +270,7 @@ class NotificationManagerImplWeb extends NotificationManagerImpl {
   Future<void> dismiss({required String uuid}) {
     final notification = _notifications.remove(uuid);
     if (notification == null) {
-      printDebug("Notification with id $uuid not found",
-          tag: NotificationManager.tag);
+      printDebug("Notification with id $uuid not found", tag: NotificationManager.tag);
     }
     return jsNotifications.dismissNotification(id: uuid);
   }
@@ -325,36 +300,28 @@ class NotificationManagerImplWeb extends NotificationManagerImpl {
     final current = _notifications[uuid];
     final options = JSNotificationOptions(
       tag: uuid,
-      body: _getCallDescription(stateOverride,
-          callType: callType, holding: holding, muted: muted),
+      body: _getCallDescription(stateOverride, callType: callType, holding: holding, muted: muted),
       requireInteraction: true,
       data: ckData,
       actions: [
         CKNotificationAction.fromNotificationAction(CKCallAction.hangUp),
         if (hasVideoCapability)
           if (callType == CallType.audio)
-            CKNotificationAction.fromNotificationAction(
-                CKCallAction.switchVideo)
+            CKNotificationAction.fromNotificationAction(CKCallAction.switchVideo)
           else
-            CKNotificationAction.fromNotificationAction(
-                CKCallAction.switchAudio),
-        if (enableMuteAction)
-          CKNotificationAction.fromNotificationAction(CKCallAction.mute),
-        if (enableHoldAction)
-          CKNotificationAction.fromNotificationAction(CKCallAction.hold),
+            CKNotificationAction.fromNotificationAction(CKCallAction.switchAudio),
+        if (enableMuteAction) CKNotificationAction.fromNotificationAction(CKCallAction.mute),
+        if (enableHoldAction) CKNotificationAction.fromNotificationAction(CKCallAction.hold),
       ],
     );
 
-    JSNotification notification = current != null
-        ? current.notification.copyWith(options: options)
-        : JSNotification(callerId, options);
+    JSNotification notification = current != null ? current.notification.copyWith(options: options) : JSNotification(callerId, options);
     await _addNotification(uuid, notification, metadata: metadata);
 
     if (onCallProvider != null && timer) {
       _addAndStartCallTimer(
         uuid: uuid,
-        onTimerTick: (tick) => _onTimerTick(uuid, tick, onCallProvider,
-            startOn: timerStartOnState),
+        onTimerTick: (tick) => _onTimerTick(uuid, tick, onCallProvider, startOn: timerStartOnState),
       );
     }
   }
@@ -395,17 +362,13 @@ class NotificationManagerImplWeb extends NotificationManagerImpl {
   void _getNotificationAndRepost(String uuid) {
     final notification = _notifications[uuid];
     if (notification != null) {
-      printDebug("Reposting notification for $uuid",
-          tag: NotificationManager.tag);
+      printDebug("Reposting notification for $uuid", tag: NotificationManager.tag);
       _addNotification(uuid, notification.notification);
     }
   }
 
-  Future<CKNotification> _addNotification(
-      String id, JSNotification notification,
-      {Map<String, dynamic>? metadata}) async {
-    final n =
-        CKNotification.simple(id, notification).copyWith(metadata: metadata);
+  Future<CKNotification> _addNotification(String id, JSNotification notification, {Map<String, dynamic>? metadata}) async {
+    final n = CKNotification.simple(id, notification).copyWith(metadata: metadata);
     _notifications[id] = n;
     await jsNotifications.addNotification(notification);
     return n;
