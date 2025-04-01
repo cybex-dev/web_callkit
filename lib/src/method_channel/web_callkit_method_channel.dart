@@ -383,7 +383,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     if (callType == CallType.video) {
       if (!call.hasCapabilityVideo) {
         printWarning("Video call not supported. Please enable it with CallKitCapability.video.", tag: tag, debugOverride: true);
-        _notificationManager.repost(uuid: call.uuid);
+        // _notificationManager.repost(uuid: call.uuid);
         return call;
       }
     }
