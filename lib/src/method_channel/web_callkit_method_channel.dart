@@ -675,6 +675,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     required CKCall call,
     Set<CallKitCapability>? capabilities,
     Map<String, dynamic>? metadata,
+    //ignore: unused_element
     Duration? offset,
     bool? silent,
   }) {
@@ -784,12 +785,10 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
         return [
           CKNotificationAction.fromNotificationAction(CKCallAction.hangUp),
         ];
-        throw UnimplementedError();
       case CallState.reconnecting:
         return [
           CKNotificationAction.fromNotificationAction(CKCallAction.hangUp),
         ];
-        throw UnimplementedError();
       case CallState.disconnecting:
         return [
           CKNotificationAction.fromNotificationAction(CKCallAction.hangUp),
