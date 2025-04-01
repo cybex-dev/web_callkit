@@ -12,8 +12,6 @@ import '../managers/managers.dart';
 import '../models/models.dart';
 import '../platform_interface/web_callkit_platform_interface.dart';
 
-typedef OnNotificationDismissed = void Function(CKCall call);
-
 /// An implementation of [WebCallkitPlatform] that uses method channels.
 class MethodChannelWebCallkit extends WebCallkitPlatform {
   static const tag = 'web_callkit';
@@ -27,9 +25,6 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   StreamSubscription<CKCallResult>? _actionStreamSubscription;
   StreamSubscription<CKCallResult>? _dismissStreamSubscription;
   StreamSubscription<CallEvent>? _callManagerStreamSubscription;
-
-  // ignore: unused_field
-  OnNotificationDismissed? _onNotificationDismissed;
 
   OnCallActionListener? _onCallActionListener;
   OnCallEventListener? _onCallEventListener;
