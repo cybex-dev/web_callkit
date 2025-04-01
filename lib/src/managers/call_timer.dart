@@ -35,6 +35,7 @@ class CallTimer {
     }
     _state = StopwatchState.stopped;
     _elapsed = Duration.zero;
+    _stopTimer();
   }
 
   /// Pause the stopwatch if it is running.
