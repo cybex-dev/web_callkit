@@ -98,6 +98,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     Set<CallAttributes>? attributes,
     Map<String, dynamic>? data,
     Map<String, dynamic>? metadata,
+    CallType callType = CallType.audio,
     CallState? stateOverride,
   }) async {
     final attr = attributes ?? _configuration.attributes;
@@ -138,6 +139,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     Set<CallAttributes>? attributes,
     Map<String, dynamic>? data,
     Map<String, dynamic>? metadata,
+    CallType callType = CallType.audio,
   }) async {
     final attr = attributes ?? _configuration.attributes;
     CKCall call = CKCall.init(

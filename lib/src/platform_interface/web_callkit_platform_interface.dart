@@ -64,6 +64,7 @@ abstract class WebCallkitPlatform extends PlatformInterface {
     Set<CallAttributes>? attributes,
     Map<String, dynamic>? data,
     Map<String, dynamic>? metadata,
+    CallType callType = CallType.audio,
     CallState? stateOverride,
   });
 
@@ -75,6 +76,7 @@ abstract class WebCallkitPlatform extends PlatformInterface {
     Set<CallAttributes>? attributes,
     Map<String, dynamic>? data,
     Map<String, dynamic>? metadata,
+    CallType callType = CallType.audio,
   });
 
   /// Register an ongoing call with the kit. This adds a new call to the callkit UI and handles according to call lifecycle defined in [CallState].
