@@ -905,8 +905,17 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   }
 
   @override
-  Future<void> renotify(String uuid, {bool silent = false}) {
-    return _notificationManager.repost(uuid: uuid);
+  Future<void> renotify(String uuid, {bool silent = false}) async {
+    printDebug("Renotify: $uuid", tag: tag);
+    final n = _notificationManager.getNotification(uuid);
+    if(n == null) {
+      printDebug("Notification not found: $uuid", tag: tag);
+      return;
+    }
+    final jsNotification = n.notification;
+    final jsOptions = jsNotification.options?.copyWith(silent: silent, requireInteraction: false);
+    final update = n.copyWith(notification: jsNotification.copyWith(options: jsOptions));
+    return _notificationManager.add(update);
   }
 
   @override
