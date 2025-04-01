@@ -48,7 +48,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     CKConfiguration? configuration,
   })  : /*_audioManager = audioManager ?? AudioManager(),*/
         _callManager = callManager ?? CallManager(),
-        _notificationManager = notificationManager ?? NotificationManagerImpl(),
+        _notificationManager = notificationManager ?? NotificationManagerImplWeb(),
         _configuration = configuration ?? WebCallkitPlatform.defaultConfiguration,
         super() {
     _setupNotificationEventListeners();
