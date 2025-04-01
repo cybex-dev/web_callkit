@@ -25,4 +25,9 @@ class CKTimer {
     this.enabled = true,
     this.startOnState = CallState.active,
   });
+
+  @override
+  String toString() {
+    return 'CKTimer{enabled: $enabled, startOnState: $startOnState}';
+  }
 }
