@@ -190,7 +190,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     // state check for response
     final call = _callManager.getCall(uuid);
     if (call == null) {
-      printDebug("Call not found: $uuid", tag: tag);
+      printDebug("Call with uuid: $uuid not found.", tag: tag);
       return;
     }
     final validResponses = validCallStateDisconnectResponses[call.state] ?? DisconnectResponse.values;
@@ -208,6 +208,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   }) async {
     final call = _callManager.getCall(uuid);
     if (call == null) {
+      printDebug("Call with uuid: $uuid not found.", tag: tag);
       return null;
     }
 
@@ -315,6 +316,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   }) async {
     final call = _callManager.getCall(uuid);
     if (call == null) {
+      printDebug("Call with uuid: $uuid not found.", tag: tag);
       return null;
     }
 
@@ -372,6 +374,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   Future<CKCall?> updateCallType(String uuid, {required CallType callType}) async {
     final call = _callManager.getCall(uuid);
     if (call == null) {
+      printDebug("Call with uuid: $uuid not found.", tag: tag);
       return null;
     }
 
@@ -508,14 +511,14 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   }
 
   Future<void> _onCallEvent(CallEvent event) async {
+    printDebug("Call Event: ${event.type}", tag: tag);
     final call = event.call;
     // ignore: unused_local_variable
     final id = call.uuid;
-    printDebug(event);
 
     switch (event.type) {
       case CallEventType.add:
-        // report new call
+        printDebug("Call Event: add: ${event.uuid}", tag: tag);
 
         // ignore: unused_local_variable
         final call = event.call;
@@ -523,13 +526,14 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
         break;
 
       case CallEventType.update:
-        // report call update
+        printDebug("Call Event: update: ${event.uuid}", tag: tag);
 
         // ignore: unused_local_variable
         final call = event.call;
         break;
 
       case CallEventType.remove:
+        printDebug("Call Event: remove: ${event.uuid}", tag: tag);
         // dismiss/remove notification
         // ignore: unused_local_variable
         final call = event.call;
