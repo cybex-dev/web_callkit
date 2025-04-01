@@ -420,95 +420,124 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   }
 
   Future<void> _onCallAction(CKCallResult result, ActionSource source) async {
-    final call = _callManager.getCall(result.uuid);
-    final callState = call?.state;
-    switch (result.action) {
-      case CKCallAction.none:
-        // do nothing
-        break;
+    if (result.uuid != null) {
+      final uuid = result.uuid!;
+      final call = _callManager.getCall(uuid);
+      final callState = call?.state;
+      switch (result.action) {
+        case CKCallAction.none:
+          printDebug("Call Action: none: $uuid", tag: tag);
+          // do nothing
+          break;
 
-      case CKCallAction.answer:
-        if (callState != CallState.ringing) {
-          printDebug("Call not in ringing state. Ignoring answer action.", tag: tag);
-          return;
-        }
-        printDebug("Call answered: ${result.uuid}", tag: tag);
-        _onCallActionListener?.call(result.uuid, CKCallAction.answer, source);
-        break;
+        case CKCallAction.answer:
+          printDebug("Call Action: answered: $uuid", tag: tag);
+          if (callState != CallState.ringing) {
+            printDebug("Call not in ringing state. Ignoring answer action.", tag: tag);
+            return;
+          }
+          printDebug("Call answered: $uuid", tag: tag);
+          _onCallActionListener?.call(uuid, CKCallAction.answer, source);
+          break;
 
-      case CKCallAction.decline:
-        if (callState != CallState.ringing) {
-          printDebug("Call not in ringing state. Ignoring decline action.", tag: tag);
-          return;
-        }
-        printDebug("Call declined: ${result.uuid}", tag: tag);
-        _onCallActionListener?.call(result.uuid, CKCallAction.decline, source);
-        break;
+        case CKCallAction.decline:
+          printDebug("Call Action: declined: $uuid", tag: tag);
+          if (callState != CallState.ringing) {
+            printDebug("Call not in ringing state. Ignoring decline action.", tag: tag);
+            return;
+          }
+          printDebug("Call declined: $uuid", tag: tag);
+          _onCallActionListener?.call(uuid, CKCallAction.decline, source);
+          break;
 
-      case CKCallAction.hangUp:
-        switch (call?.state) {
-          case CallState.initiated:
-          case CallState.dialing:
-            _onDisconnectListener?.call(result.uuid, DisconnectResponse.canceled, source);
-            break;
-          case CallState.active:
-          case CallState.reconnecting:
-            _onDisconnectListener?.call(result.uuid, DisconnectResponse.local, source);
-            break;
-          case CallState.disconnecting:
-            _onDisconnectListener?.call(result.uuid, DisconnectResponse.local, source);
-            break;
-          case CallState.disconnected:
-          default:
-            printDebug("Call not in valid state. Ignoring hangup action. State: $callState", tag: tag);
-            break;
-        }
-        break;
+        case CKCallAction.hangUp:
+          printDebug("Call Action: hangup: $uuid", tag: tag);
+          switch (call?.state) {
+            case CallState.initiated:
+            case CallState.dialing:
+              _onDisconnectListener?.call(uuid, DisconnectResponse.canceled, source);
+              break;
+            case CallState.active:
+            case CallState.reconnecting:
+              _onDisconnectListener?.call(uuid, DisconnectResponse.local, source);
+              break;
+            case CallState.disconnecting:
+              _onDisconnectListener?.call(uuid, DisconnectResponse.local, source);
+              break;
+            case CallState.disconnected:
+            default:
+              printDebug("Call not in valid state. Ignoring hangup action. State: $callState", tag: tag);
+              break;
+          }
+          break;
 
-      case CKCallAction.callback:
-        printDebug("Call callback: ${result.uuid}", tag: tag);
-        _onCallActionListener?.call(result.uuid, CKCallAction.callback, source);
-        break;
+        case CKCallAction.callback:
+          printDebug("Call Action: callback: $uuid", tag: tag);
+          _onCallActionListener?.call(uuid, CKCallAction.callback, source);
+          break;
 
-      case CKCallAction.switchVideo:
-        _onCallTypeChange(result, callType: CallType.video, source: source);
-        break;
+        case CKCallAction.switchVideo:
+          printDebug("Call Action: switch video: $uuid", tag: tag);
+          _onCallTypeChange(result, callType: CallType.video, source: source);
+          break;
 
-      case CKCallAction.switchAudio:
-        _onCallTypeChange(result, callType: CallType.audio, source: source);
-        break;
+        case CKCallAction.switchAudio:
+          printDebug("Call Action: switch audio: $uuid", tag: tag);
+          _onCallTypeChange(result, callType: CallType.audio, source: source);
+          break;
 
-      case CKCallAction.switchScreenShare:
-        _onCallTypeChange(result, callType: CallType.screenShare, source: source);
-        break;
+        case CKCallAction.switchScreenShare:
+          printDebug("Call Action: switch screen share: $uuid", tag: tag);
+          _onCallTypeChange(result, callType: CallType.screenShare, source: source);
+          break;
 
-      case CKCallAction.mute:
-        printDebug("Call mute state: ${result.uuid}", tag: tag);
-        _onCallActionListener?.call(result.uuid, result.action, source);
-        break;
+        case CKCallAction.mute:
+          printDebug("Call Action: mute: $uuid", tag: tag);
+          _onCallActionListener?.call(uuid, result.action, source);
+          break;
 
-      case CKCallAction.unmute:
-        printDebug("Call unmute state: ${result.uuid}", tag: tag);
-        _onCallActionListener?.call(result.uuid, result.action, source);
-        break;
+        case CKCallAction.unmute:
+          printDebug("Call Action: unmute: $uuid", tag: tag);
+          _onCallActionListener?.call(uuid, result.action, source);
+          break;
 
-      case CKCallAction.hold:
-        printDebug("Call hold state: ${result.uuid}", tag: tag);
-        _onCallActionListener?.call(result.uuid, result.action, source);
-        break;
+        case CKCallAction.hold:
+          printDebug("Call Action; hold: $uuid", tag: tag);
+          _onCallActionListener?.call(uuid, result.action, source);
+          break;
 
-      case CKCallAction.unhold:
-        printDebug("Call unhold state: ${result.uuid}", tag: tag);
-        _onCallActionListener?.call(result.uuid, result.action, source);
-        break;
+        case CKCallAction.unhold:
+          printDebug("Call Action: unhold: $uuid", tag: tag);
+          _onCallActionListener?.call(uuid, result.action, source);
+          break;
 
-      case CKCallAction.dismiss:
-        _dismissNotification(result.uuid);
-        break;
+        case CKCallAction.dismiss:
+          printDebug("Call Action: dismiss: $uuid", tag: tag);
+          _dismissNotification(uuid);
+          break;
 
-      // default:
-      //   printDebug("Unknown action: ${result.action}", tag: tag);
-      //   break;
+        case CKCallAction.silence:
+          printDebug("Call Action: silence: $uuid", tag: tag);
+          if (callState != CallState.ringing) {
+            printDebug("Call not in ringing state. Ignoring silence action.", tag: tag);
+            return;
+          }
+          renotify(uuid, silent: true);
+          _onCallActionListener?.call(uuid, CKCallAction.silence, source);
+          break;
+
+        case CKCallAction.disableVideo:
+          printDebug("Call Action: disable video: $uuid", tag: tag);
+          _onCallActionListener?.call(uuid, CKCallAction.disableVideo, source);
+          break;
+
+        case CKCallAction.enableVideo:
+          printDebug("Call Action: enable video: $uuid", tag: tag);
+          _onCallActionListener?.call(uuid, CKCallAction.enableVideo, source);
+          break;
+      }
+    } else {
+      printDebug("Call Action: uuid is null", tag: tag);
     }
   }
 
