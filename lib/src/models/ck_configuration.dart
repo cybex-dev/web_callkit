@@ -7,6 +7,7 @@ class CKConfiguration {
   final Set<CallAttributes> attributes;
   final CKTimer timer;
   final bool notifyOnCallEnd;
+  // final bool repostOnClick;
 
   const CKConfiguration({
     this.sounds = const CKSounds(),
@@ -14,7 +15,14 @@ class CKConfiguration {
     this.attributes = const {},
     this.timer = const CKTimer(),
     this.notifyOnCallEnd = true,
+    // this.repostOnClick = true,
   });
+
+  @override
+  String toString() {
+    // return 'CKConfiguration{sounds: $sounds, capabilities: $capabilities, attributes: $attributes, timer: $timer, notifyOnCallEnd: $notifyOnCallEnd, repostOnClick: $repostOnClick}';
+    return 'CKConfiguration{sounds: $sounds, capabilities: $capabilities, attributes: $attributes, timer: $timer, notifyOnCallEnd: $notifyOnCallEnd}';
+  }
 }
 
 class CKTimer {
