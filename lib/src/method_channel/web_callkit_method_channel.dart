@@ -811,14 +811,17 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     required CallType callType,
     ActionSource source = ActionSource.notification,
   }) {
-    printDebug("Call type changed: ${result.uuid}", tag: tag);
-    // TODO - check all call states
-    final call = _callManager.getCall(result.uuid);
-    if (call != null) {
-      final event = CallEvent.update(call);
-      _onCallTypeChangeListener?.call(event, callType, source);
-    } else {
-      printDebug("_onCallTypeChange: Call not found: ${result.uuid}", tag: tag);
+    if (result.uuid != null) {
+      final uuid = result.uuid!;
+      printDebug("Call type changed: ${result.uuid}", tag: tag);
+      // TODO - check all call states
+      final call = _callManager.getCall(uuid);
+      if (call != null) {
+        final event = CallEvent.update(call);
+        _onCallTypeChangeListener?.call(event, callType, source);
+      } else {
+        printDebug("_onCallTypeChange: Call not found: $uuid}", tag: tag);
+      }
     }
   }
 
