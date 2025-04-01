@@ -26,6 +26,7 @@ dependencies:
 #  js_notifications:
 #    path: ../js_notifications
   simple_print: ^0.0.1+2
+  uuid: ^4.5.1
 
 dev_dependencies:
   flutter_test:
