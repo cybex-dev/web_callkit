@@ -3,7 +3,7 @@ typedef MapResult<T, R> = R Function(T key);
 extension MapExt<T, R> on Map<T, R> {
   bool getBool(T key, {Function()? orElse}) {
     orElse ??= () => false;
-    if (containsKey(key) && this[key] != null && this[key] is bool) {
+    if (containsKeyAndNotNull(key) && this[key] is bool) {
       return this[key] as bool;
     } else {
       return orElse();
@@ -12,27 +12,39 @@ extension MapExt<T, R> on Map<T, R> {
 
   String getString(T key, {Function()? orElse}) {
     orElse ??= () => "";
-    if (containsKey(key) && this[key] != null && this[key] is String) {
+    if (containsKeyAndNotNull(key) && this[key] is String) {
       return this[key] as String;
     } else {
       return orElse();
     }
   }
+
+  /// Checks if the map contains the key and the value is not null.
+  /// A convenience function for `Map.containsKey(key) && Map[key] != null`
+  bool containsKeyAndNotNull(T key) {
+    return containsKey(key) && this[key] != null;
+  }
 }
 
 extension DurationExtensions on Duration {
-  String formatDuration(Duration duration) {
+  static String formatDuration(Duration duration, {bool includeHours = true, bool includeHoursIfZero = false}) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
-    String hours = twoDigits(duration.inHours);
-    String minutes = twoDigits(duration.inMinutes.remainder(60));
-    String seconds = twoDigits(duration.inSeconds.remainder(60));
-    return "$hours:$minutes:$seconds";
+    String hours = "";
+    if (includeHours && (includeHoursIfZero || duration.inHours > 0)) {
+      hours = "${twoDigits(duration.inHours)}:";
+    }
+    final minutes = twoDigits(duration.inMinutes % 60);
+    final seconds = twoDigits(duration.inSeconds % 60);
+    return "$hours$minutes:$seconds";
+  }
+
+  String format({bool includeHours = true, bool includeHoursIfZero = false}) {
+    return formatDuration(this, includeHours: includeHours, includeHoursIfZero: includeHoursIfZero);
   }
 }
 
 extension StringExt on String {
-  String replaceCharacters(
-      {List<String> chars = const [], String newChar = ""}) {
+  String replaceCharacters({List<String> chars = const [], String newChar = ""}) {
     if (isEmpty || chars.isEmpty) {
       return this;
     }
@@ -64,14 +76,15 @@ extension ListExt<T> on List<T> {
 }
 
 extension DateTimeExt on DateTime {
-  String toTime({bool seconds = true}) {
-    return "${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}${seconds ? ":${second.toString().padLeft(2, '0')}" : ""}";
+  String format({bool seconds = true}) {
+    final h = hour.toString().padLeft(2, '0');
+    final m = minute.toString().padLeft(2, '0');
+    final s = seconds ? ":${second.toString().padLeft(2, '0')}" : "";
+    return "$h:$m$s";
   }
 
   String getTimeDifference(DateTime other) {
-    final difference = this.difference(other);
-    // format hh:mm:ss
-    return "${difference.inHours.toString().padLeft(2, '0')}:${(difference.inMinutes % 60).toString().padLeft(2, '0')}:${(difference.inSeconds % 60).toString().padLeft(2, '0')}";
+    return difference(other).format();
   }
 }
 
