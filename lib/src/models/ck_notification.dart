@@ -8,10 +8,10 @@ class CKNotification {
   /// JS notification
   final JSNotification notification;
 
-  /// callkit metadata
+  /// Callkit metadata, stores Callkit specific data, flags, etc.
   final Map<String, dynamic> metadata;
 
-  const CKNotification(this.uuid, this.notification, this.metadata);
+  const CKNotification._internal(this.uuid, this.notification, {this.metadata = const {}});
 
   const CKNotification.simple(this.uuid, this.notification)
       : metadata = const {};
