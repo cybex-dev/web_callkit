@@ -23,6 +23,8 @@ class CallTimer {
     }
     _state = StopwatchState.running;
     _startTimer();
+    // Notify the initial elapsed time
+    _onTick?.call(0);
   }
 
   /// Stop the stopwatch and reset the elapsed time.
