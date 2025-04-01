@@ -572,6 +572,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
         if (event is DisconnectCallEvent) {
           _onDisconnectListener?.call(event.uuid, event.response, ActionSource.api);
         }
+        _stopCallTimer(id);
         break;
     }
 
