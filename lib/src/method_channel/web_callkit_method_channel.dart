@@ -40,31 +40,6 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   @visibleForTesting
   final methodChannel = const MethodChannel('web_callkit');
 
-  final Map<CallState, List<DisconnectResponse>> validCallStateDisconnectResponses = {
-    CallState.initiated: [
-      DisconnectResponse.unknown,
-      DisconnectResponse.error,
-      DisconnectResponse.local,
-      DisconnectResponse.remote,
-      DisconnectResponse.canceled,
-      DisconnectResponse.rejected,
-      DisconnectResponse.busy
-    ],
-    CallState.ringing: [
-      DisconnectResponse.unknown,
-      DisconnectResponse.error,
-      DisconnectResponse.remote,
-      DisconnectResponse.missed,
-      DisconnectResponse.rejected,
-      DisconnectResponse.busy
-    ],
-    CallState.dialing: [DisconnectResponse.unknown, DisconnectResponse.error, DisconnectResponse.local, DisconnectResponse.rejected, DisconnectResponse.busy],
-    CallState.active: [DisconnectResponse.unknown, DisconnectResponse.error, DisconnectResponse.local, DisconnectResponse.remote],
-    CallState.reconnecting: [DisconnectResponse.unknown, DisconnectResponse.error, DisconnectResponse.local, DisconnectResponse.remote],
-    CallState.disconnecting: [DisconnectResponse.unknown, DisconnectResponse.error, DisconnectResponse.local, DisconnectResponse.remote],
-    CallState.disconnected: [DisconnectResponse.unknown, DisconnectResponse.error, DisconnectResponse.local, DisconnectResponse.remote],
-  };
-
   MethodChannelWebCallkit({
     AudioManager? audioManager,
     CallManager? callManager,
