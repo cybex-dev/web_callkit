@@ -3,8 +3,11 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:simple_print/simple_print.dart';
+import 'package:web_callkit/src/models/ck_notification_action.dart';
+import 'package:web_callkit/src/utils/utils.dart';
 
 import '../core/core.dart';
+import '../managers/call_timer.dart';
 import '../managers/managers.dart';
 import '../models/models.dart';
 import '../platform_interface/web_callkit_platform_interface.dart';
@@ -14,6 +17,7 @@ typedef OnNotificationDismissed = void Function(CKCall call);
 /// An implementation of [WebCallkitPlatform] that uses method channels.
 class MethodChannelWebCallkit extends WebCallkitPlatform {
   static const tag = 'web_callkit';
+  final Map<String, CallTimer> _timers = {};
 
   // ignore: unused_field
   late final AudioManager _audioManager;
@@ -51,6 +55,13 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
         _configuration = configuration ?? WebCallkitPlatform.defaultConfiguration,
         super() {
     _setupNotificationEventListeners();
+    _callManager.setOnCallUpdate(_onCallUpdated);
+  }
+
+  void _onCallUpdated(String uuid, CKCall update, CKCall current) {
+    if (current.state != update.state) {
+      _onCallStatusChanged(uuid, update, current);
+    }
   }
 
   void _setupNotificationEventListeners() {
@@ -670,6 +681,51 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     // }
   }
 
+  void _onCallStatusChanged(String uuid, CKCall update, CKCall current) {
+    if (current.active && !update.active) {
+      _stopCallTimer(uuid);
+      return;
+    }
+
+    if (!current.active && update.active) {
+      if (!_configuration.timer.enabled) {
+        return;
+      }
+      if (_configuration.timer.startOnState != update.state) {
+        return;
+      }
+      _startCallTimer(uuid);
+    }
+  }
+
+  void _startCallTimer(String uuid) {
+    final timer = CallTimer(
+      onTimerTick: (tick) => _onTimerUpdate(uuid, tick),
+    );
+    timer.start();
+    _timers[uuid] = timer;
+  }
+
+  void _stopCallTimer(String uuid) {
+    final timer = _timers.remove(uuid);
+    if(timer != null) {
+      timer.stop();
+    }
+  }
+
+  void _onTimerUpdate(String uuid, int duration) {
+    final call = _callManager.getCall(uuid);
+    if (call == null) {
+      return;
+    }
+    final n = _notificationManager.getNotification(uuid);
+    if (n == null) {
+      return;
+    }
+    final update = _generateNotification(call: call, capabilities: call.capabilities, metadata: n.metadata);
+    _notificationManager.add(update, flags: _defaultFlags);
+  }
+
   Future<void> dispose() {
     final futures = [
       _tapStreamSubscription?.cancel(),
@@ -678,6 +734,141 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
       _callManagerStreamSubscription?.cancel(),
     ].whereType<Future<void>>();
     return Future.wait(futures);
+  }
+
+  CKNotification _generateNotification({
+    required CKCall call,
+    Set<CallKitCapability>? capabilities,
+    Map<String, dynamic>? metadata,
+    Duration? offset,
+    bool? silent,
+  }) {
+    final title = _getTitle(call);
+    final body = _getDescription(call);
+    final actions = _getActions(call);
+    final icon = _getIcon(call);
+
+    final currentTime = DateTime.now();
+    final notification = CKNotification.builder(
+      uuid: call.uuid,
+      title: title,
+      body: body,
+      actions: actions,
+      icon: icon,
+      silent: silent,
+      requireInteraction: true,
+      renotify: true,
+      data: call.data,
+      timestamp: currentTime.millisecondsSinceEpoch,
+      metadata: metadata,
+    );
+    return notification;
+  }
+
+  String _getTitle(CKCall call) {
+    return call.localizedName;
+  }
+
+  String _getDescription(CKCall call) {
+    final type = call.callType;
+    final state = call.state;
+
+    String base = switch (type) {
+      CallType.screenShare => type.name.capitalize(),
+      _ => "${type.name.capitalize()} Call",
+    };
+    String description = "";
+
+    switch (state) {
+      case CallState.initiated:
+        description = "Calling $base";
+        break;
+      case CallState.ringing:
+        description = "Incoming $base";
+        break;
+      case CallState.dialing:
+        description = "Dialing $base";
+        break;
+      case CallState.active:
+        description = "Ongoing $base";
+        final timestamp = _callManager.logs[call.uuid]?.firstWhereOrNull((element) => element.state == CallState.active)?.date;
+        if(timestamp != null) {
+          final elapsed = DateTime.now().getTimeDifference(timestamp);
+          description += " ($elapsed)";
+        }
+        if (call.isHolding) {
+          description = "$description (On Hold)";
+        }
+        if (call.isMuted) {
+          description = "$description (Muted)";
+        }
+        break;
+      case CallState.reconnecting:
+        description = "$base (Reconnecting)";
+        break;
+      case CallState.disconnecting:
+        description = "$base Ending...";
+        break;
+      case CallState.disconnected:
+        description = "$base Ended";
+        break;
+    }
+
+    return description;
+  }
+
+  List<CKNotificationAction> _getActions(CKCall call) {
+    switch (call.state) {
+      case CallState.initiated:
+        return [
+          CKNotificationAction.fromNotificationAction(CKCallAction.hangUp),
+          if (call.hasCapabilityMute) CKNotificationAction.fromNotificationAction(CKCallAction.mute),
+          if (call.isAudioOnly) ...[
+            if (call.hasCapabilitySupportsHold) CKNotificationAction.fromNotificationAction(CKCallAction.hold),
+          ] else ...[
+            CKNotificationAction.fromNotificationAction(CKCallAction.switchAudio),
+          ],
+        ];
+      case CallState.ringing:
+        return [
+          CKNotificationAction.fromNotificationAction(CKCallAction.answer),
+          // CKNotificationAction.fromNotificationAction(CKCallAction.decline),
+          if (call.hasCapabilitySilence) CKNotificationAction.fromNotificationAction(CKCallAction.silence),
+        ];
+      case CallState.dialing:
+        return [
+          CKNotificationAction.fromNotificationAction(CKCallAction.hangUp),
+          if (call.hasCapabilityMute) CKNotificationAction.fromNotificationAction(CKCallAction.mute),
+          if (call.isAudioOnly) ...[
+            if (call.hasCapabilitySupportsHold) CKNotificationAction.fromNotificationAction(CKCallAction.hold),
+          ] else ...[
+            CKNotificationAction.fromNotificationAction(CKCallAction.switchAudio),
+          ],
+        ];
+      case CallState.active:
+        return [
+          CKNotificationAction.fromNotificationAction(CKCallAction.hangUp),
+        ];
+        throw UnimplementedError();
+      case CallState.reconnecting:
+        return [
+          CKNotificationAction.fromNotificationAction(CKCallAction.hangUp),
+        ];
+        throw UnimplementedError();
+      case CallState.disconnecting:
+        return [
+          CKNotificationAction.fromNotificationAction(CKCallAction.hangUp),
+        ];
+      case CallState.disconnected:
+        return [
+          CKNotificationAction.fromNotificationAction(CKCallAction.callback),
+          CKNotificationAction.fromNotificationAction(CKCallAction.dismiss),
+        ];
+    }
+  }
+
+  String? _getIcon(CKCall call) {
+    return null;
   }
 
   void _onCallTypeChange(

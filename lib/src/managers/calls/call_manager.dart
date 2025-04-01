@@ -8,6 +8,8 @@ import 'package:uuid/uuid.dart';
 import '../../core/core.dart';
 import '../../models/models.dart';
 
+typedef OnCallUpdate = void Function(String uuid, CKCall update, CKCall current);
+
 class CKLogEntry {
   final String id;
   final String uuid;
@@ -37,20 +39,16 @@ class CKLogEntry {
 class CallManager {
   static const tag = 'call_manager';
 
-  /// List of call states that are considered active.
-  final _definesActiveCalls = [
-    CallState.initiated,
-    CallState.ringing,
-    CallState.dialing,
-    CallState.active,
-    CallState.reconnecting,
-    CallState.disconnecting,
-    CallState.disconnected,
-  ];
+  Map<String, CKCall> get activeCalls {
+    return Map.fromEntries(_calls.entries.where((e) => e.value.active));
+  }
 
-  // internal call map
+  OnCallUpdate? _onCallUpdate;
+  void setOnCallUpdate(OnCallUpdate value) {
+    _onCallUpdate = value;
+  }
+
   final Map<String, CKCall> _calls = {};
-
   Map<String, CKCall> get calls => _calls;
 
   final Map<String, List<CKLogEntry>> _logs = {};
@@ -202,6 +200,7 @@ class CallManager {
     final updated = current.update(call).copyWith(dateUpdated: DateTime.now());
     _calls[uuid] = updated;
     _addLogEntry(updated);
+    _onCallUpdate?.call(uuid, updated, current);
   }
 
   /// Remove call from internal call map
@@ -217,9 +216,7 @@ class CallManager {
 
   /// Check if there are any active calls, as defined by "active" call states in [_definesActiveCalls].
   bool get hasActiveCalls {
-    return calls.values
-        .map((event) => event.state)
-        .any((event) => _definesActiveCalls.contains(event));
+    return calls.values.any((event) => event.active);
   }
 
   void _addLogEntry(CKCall call) {

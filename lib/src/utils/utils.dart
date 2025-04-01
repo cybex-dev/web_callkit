@@ -64,11 +64,10 @@ extension StringExt on String {
 }
 
 extension ListExt<T> on List<T> {
-  R? firstWhereOrNull<R>(MapResult<T, R> mapper, {R? orElse}) {
+  T? firstWhereOrNull(bool Function(T) test, {T? orElse}) {
     for (var element in this) {
-      final result = mapper(element);
-      if (result != null) {
-        return result;
+      if (test(element)) {
+        return element;
       }
     }
     return orElse;
