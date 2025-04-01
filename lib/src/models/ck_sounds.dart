@@ -49,15 +49,12 @@ class CKAssetSound extends CKSound {
 }
 
 class CKSounds {
-  static const String defaultIncomingUrl =
-      "https://sdk.twilio.com/js/client/sounds/releases/1.0.0/incoming.mp3";
-  static const String defaultIncomingWaitingUrl =
-      "https://www.soundsnap.com/play?t=e&p=files/audio/n8/456121-COMCell-Notification-Two_note_keys_11-KDRa-CNMPHN.mp3";
-  static const String defaultHoldUrl =
-      "https://onlinesound.net/_ld/72/7210_busy_tone_2.mp3";
+  static const String defaultIncomingUrl = "https://sdk.twilio.com/js/client/sounds/releases/1.0.0/incoming.mp3";
+  static const String defaultIncomingWaitingUrl = "https://www.soundsnap.com/play?t=e&p=files/audio/n8/456121-COMCell-Notification-Two_note_keys_11-KDRa-CNMPHN.mp3";
+  static const String defaultHoldUrl = "https://onlinesound.net/_ld/72/7210_busy_tone_2.mp3";
+
   // static const String defaultHoldUrl = "https://www.soundsnap.com/play?t=e&p=files/audio/54/50952-TECHNOLOGY_TELEPHONE_OPERATOR_UNFILTERED_MALE_VOICE_CLIP_YOUR_CALL_IS_VERY_IMPORTANT_TO_US_PLEASE.mp3";
-  static const String defaultDialingUrl =
-      "https://onlinesound.net/_ld/72/7212_ringing_tone_2.mp3";
+  static const String defaultDialingUrl = "https://onlinesound.net/_ld/72/7212_ringing_tone_2.mp3";
 
   final bool enabled;
   final CKSound? incoming;
