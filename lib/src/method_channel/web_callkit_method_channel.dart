@@ -115,33 +115,20 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     CallType callType = CallType.audio,
     CallState? stateOverride,
   }) async {
-    final attr = attributes ?? _configuration.attributes;
+    final ckAttributes = attributes ?? _configuration.attributes;
+    final ckCapabilities = capabilities ?? _configuration.capabilities;
     CKCall call = CKCall.init(
       uuid: uuid,
       localizedName: handle,
-      attributes: attr,
-      callType: CallType.audio,
+      attributes: ckAttributes,
+      capabilities: ckCapabilities,
+      callType: callType,
       data: data,
     ).copyWith(state: stateOverride ?? CallState.ringing);
     _callManager.addCall(call);
 
-    final capabilities = _configuration.capabilities;
-    await _notificationManager.incomingCall(
-      call.uuid,
-      callerId: call.localizedName,
-      callType: call.callType,
-      holding: call.isHolding,
-      muted: call.isMuted,
-      enableHoldAction: capabilities.contains(CallKitCapability.supportHold),
-      enableMuteAction: capabilities.contains(CallKitCapability.mute),
-      hasVideoCapability: true,
-      data: call.data,
-      onCallProvider: _getCall,
-      timer: _configuration.timer.enabled,
-      timerStartOnState: _configuration.timer.startOnState,
-      metadata: metadata,
-    );
-
+    final notification = _generateNotification(call: call, capabilities: capabilities, metadata: metadata);
+    await _notificationManager.add(notification, flags: _defaultFlags);
     return call;
   }
 
@@ -155,33 +142,20 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     Map<String, dynamic>? metadata,
     CallType callType = CallType.audio,
   }) async {
-    final attr = attributes ?? _configuration.attributes;
+    final ckAttributes = attributes ?? _configuration.attributes;
+    final ckCapabilities = capabilities ?? _configuration.capabilities;
     CKCall call = CKCall.init(
       uuid: uuid,
       localizedName: handle,
-      attributes: attr,
-      callType: CallType.audio,
+      attributes: ckAttributes,
+      capabilities: ckCapabilities,
+      callType: callType,
       data: data,
     );
     _callManager.addCall(call);
 
-    final capabilities = _configuration.capabilities;
-    await _notificationManager.outgoingCall(
-      call.uuid,
-      callerId: call.localizedName,
-      callType: call.callType,
-      holding: call.isHolding,
-      muted: call.isMuted,
-      enableHoldAction: capabilities.contains(CallKitCapability.supportHold),
-      enableMuteAction: capabilities.contains(CallKitCapability.mute),
-      hasVideoCapability: true,
-      data: call.data,
-      onCallProvider: _getCall,
-      timer: _configuration.timer.enabled,
-      timerStartOnState: _configuration.timer.startOnState,
-      metadata: metadata,
-    );
-
+    final notification = _generateNotification(call: call, capabilities: ckCapabilities, metadata: metadata);
+    await _notificationManager.add(notification, flags: _defaultFlags);
     return call;
   }
 
@@ -206,24 +180,11 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
       capabilities: ckCapabilities,
       data: data,
     );
-    _callManager.addCall(call);
-    final metadata = _notificationManager.getNotification(uuid)?.metadata;
 
-    await _notificationManager.onGoingCall(
-      uuid,
-      callerId: handle,
-      callType: call.callType,
-      holding: call.isHolding,
-      muted: call.isMuted,
-      enableHoldAction: call.hasCapabilitySupportsHold || call.hasCapabilityHold,
-      enableMuteAction: call.hasCapabilityMute,
-      hasVideoCapability: call.hasCapabilityVideo,
-      data: data,
-      onCallProvider: _getCall,
-      timer: _configuration.timer.enabled,
-      timerStartOnState: _configuration.timer.startOnState,
-      metadata: metadata,
-    );
+    _callManager.addCall(call);
+
+    final notification = _generateNotification(call: call, capabilities: ckCapabilities, metadata: metadata);
+    await _notificationManager.add(notification, flags: _defaultFlags);
     return call;
   }
 
@@ -301,22 +262,10 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     final update = call.copyWith(attributes: moderatedAttributes);
     _callManager.updateCall(update);
     final metadata = _notificationManager.getNotification(uuid)?.metadata;
+    final ckCapabilities = update.capabilities;
 
-    await _notificationManager.onGoingCall(
-      uuid,
-      callerId: update.localizedName,
-      callType: update.callType,
-      holding: update.isHolding,
-      muted: update.isMuted,
-      enableHoldAction: update.hasCapabilitySupportsHold || update.hasCapabilityHold,
-      enableMuteAction: update.hasCapabilityMute,
-      hasVideoCapability: true,
-      data: update.data,
-      onCallProvider: _getCall,
-      timer: _configuration.timer.enabled,
-      timerStartOnState: _configuration.timer.startOnState,
-      metadata: metadata,
-    );
+    final notification = _generateNotification(call: update, capabilities: ckCapabilities, metadata: metadata);
+    await _notificationManager.add(notification, flags: _defaultFlags);
 
     return update;
   }
@@ -328,28 +277,17 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   }) async {
     final call = _callManager.getCall(uuid);
     if (call == null) {
-      throw Exception("Call with uuid: $uuid not found.");
+      printDebug("Call with uuid: $uuid not found.", tag: tag);
+      return Future.value();
     }
 
     final update = call.copyWith(capabilities: capabilities);
     _callManager.updateCall(update);
     final metadata = _notificationManager.getNotification(uuid)?.metadata;
+    final ckCapabilities = update.capabilities;
 
-    await _notificationManager.onGoingCall(
-      uuid,
-      callerId: update.localizedName,
-      callType: update.callType,
-      holding: update.isHolding,
-      muted: update.isMuted,
-      enableHoldAction: capabilities.contains(CallKitCapability.supportHold),
-      enableMuteAction: capabilities.contains(CallKitCapability.mute),
-      hasVideoCapability: true,
-      data: update.data,
-      onCallProvider: _getCall,
-      timer: _configuration.timer.enabled,
-      timerStartOnState: _configuration.timer.startOnState,
-      metadata: metadata,
-    );
+    final notification = _generateNotification(call: update, capabilities: ckCapabilities, metadata: metadata);
+    await _notificationManager.add(notification, flags: _defaultFlags);
 
     return update;
   }
@@ -361,28 +299,17 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   }) async {
     final call = _callManager.getCall(uuid);
     if (call == null) {
+      printDebug("Call with uuid: $uuid not found.", tag: tag);
       return null;
     }
 
     final update = call.copyWith(data: data);
     _callManager.updateCall(update);
     final metadata = _notificationManager.getNotification(uuid)?.metadata;
+    final ckCapabilities = update.capabilities;
 
-    await _notificationManager.onGoingCall(
-      uuid,
-      callerId: update.localizedName,
-      callType: update.callType,
-      holding: update.isHolding,
-      muted: update.isMuted,
-      enableHoldAction: update.capabilities.contains(CallKitCapability.supportHold),
-      enableMuteAction: update.capabilities.contains(CallKitCapability.mute),
-      hasVideoCapability: true,
-      data: update.data,
-      onCallProvider: _getCall,
-      timer: _configuration.timer.enabled,
-      timerStartOnState: _configuration.timer.startOnState,
-      metadata: metadata,
-    );
+    final notification = _generateNotification(call: update, capabilities: ckCapabilities, metadata: metadata);
+    await _notificationManager.add(notification, flags: _defaultFlags);
 
     return update;
   }
@@ -439,23 +366,10 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     final update = call.copyWith(state: callStatus);
     _callManager.updateCall(update);
     final metadata = _notificationManager.getNotification(uuid)?.metadata;
+    final ckCapabilities = update.capabilities;
 
-    await _notificationManager.onGoingCall(
-      uuid,
-      callerId: update.localizedName,
-      callType: update.callType,
-      holding: update.isHolding,
-      muted: update.isMuted,
-      enableHoldAction: update.capabilities.contains(CallKitCapability.supportHold),
-      enableMuteAction: update.capabilities.contains(CallKitCapability.mute),
-      hasVideoCapability: true,
-      data: update.data,
-      onCallProvider: _getCall,
-      timer: _configuration.timer.enabled,
-      timerStartOnState: _configuration.timer.startOnState,
-      stateOverride: callStatus,
-      metadata: metadata,
-    );
+    final notification = _generateNotification(call: update, capabilities: ckCapabilities, metadata: metadata);
+    await _notificationManager.add(notification, flags: _defaultFlags);
 
     return update;
   }
@@ -478,22 +392,10 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     final update = call.copyWith(callType: callType);
     _callManager.updateCall(update);
     final metadata = _notificationManager.getNotification(uuid)?.metadata;
+    final ckCapabilities = update.capabilities;
 
-    await _notificationManager.onGoingCall(
-      uuid,
-      callerId: update.localizedName,
-      callType: callType,
-      holding: update.isHolding,
-      muted: update.isMuted,
-      enableHoldAction: update.capabilities.contains(CallKitCapability.supportHold),
-      enableMuteAction: update.capabilities.contains(CallKitCapability.mute),
-      hasVideoCapability: true,
-      data: update.data,
-      timer: _configuration.timer.enabled,
-      timerStartOnState: _configuration.timer.startOnState,
-      onCallProvider: _getCall,
-      metadata: metadata,
-    );
+    final notification = _generateNotification(call: update, capabilities: ckCapabilities, metadata: metadata);
+    await _notificationManager.add(notification, flags: _defaultFlags);
 
     return update;
   }
@@ -904,7 +806,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     }
 
     final notification = n.copyWith(metadata: metadata);
-    return _notificationManager.add(notification);
+    return _notificationManager.add(notification, flags: _defaultFlags);
   }
 
   @override
