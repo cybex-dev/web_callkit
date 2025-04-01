@@ -159,5 +159,7 @@ class CKCall {
 
   bool get hasCapabilityVideo => capabilities.contains(CallKitCapability.video);
 
+  bool get hasCapabilitySilence => capabilities.contains(CallKitCapability.silence);
+
   bool get active => _definesActiveCalls.contains(state);
 }
