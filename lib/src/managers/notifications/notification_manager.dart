@@ -1,21 +1,6 @@
 import 'dart:async';
 
-import 'package:web_callkit/src/models/ck_notification_action.dart';
-import 'package:web_callkit/src/models/models.dart';
-
-import '../../core/core.dart';
-
-typedef CallProvider = CKCall? Function(String uuid);
-
-class NotificationManagerOptions {
-  final bool enableMuteAction;
-  final bool enableHoldAction;
-
-  const NotificationManagerOptions({
-    this.enableMuteAction = false,
-    this.enableHoldAction = false,
-  });
-}
+import 'package:web_callkit/web_callkit.dart';
 
 abstract class NotificationManager {
   static const tag = 'notification_manager';
@@ -23,8 +8,12 @@ abstract class NotificationManager {
   // ignore: constant_identifier_names
   static const String CK_EXTRA_PERSIST = CALLKIT_PERSIST;
 
+  /// Obtain stream for notification click/actions i.e. [CKNotificationAction] button clicks. On tapping a notification, this is considered an action.
+  /// These notifications are reposted immediately to ensure transparency of the call state. A notification can be reposted automatically with the [repostOnClick] property.
+  /// TODO: Implement repostOnClick
   Stream<CKCallResult> get actionStream;
 
+  /// Obtain stream for notification dismiss events. Dismiss events include clicking the close button on the notification.
   Stream<CKCallResult> get dismissStream;
 
   /// Notification tap interaction stream. Taps include clicking anywhere on the notification except the close, or
@@ -38,76 +27,21 @@ abstract class NotificationManager {
   Future<void> dismiss({required String uuid});
 
   /// Add a notification to the notification manager, overwriting existing an notification with the same [CKNotification.uuid]
-  Future<void> add(CKNotification notification);
+  Future<void> add(CKNotification notification, {Map<String, bool>? flags});
 
-  /// Repost a notification by uuid
-  Future<void> repost({required String uuid, bool silent = true});
+  // /// Repost a notification by uuid, if the notification is not found, nothing is done.
+  // /// If [silent] is true, the notification will update the [CKNotification] but override the [JSNotificationOptions.silent] with [silent].
+  // Future<void> repost({required String uuid, bool silent = true});
 
-  /// Create [CKNotification] from parameters and show an incoming call notification. A convenience wrapper
-  /// for [NotificationManager.add].
-  Future<void> incomingCall(
-    String uuid, {
-    required String callerId,
-    Map<String, dynamic>? data,
-    Map<String, dynamic>? metadata,
-    CallType callType = CallType.audio,
-    bool holding = false,
-    bool muted = false,
-    bool enableMuteAction = false,
-    bool enableHoldAction = false,
-    bool hasVideoCapability = false,
-    bool requireInteraction = true,
-    bool timer = true,
-    CallState? timerStartOnState,
-    CallProvider? onCallProvider,
-  });
-
-  Future<void> missedCall(
-    String uuid, {
-    required String callerId,
-  });
-
-  Future<void> outgoingCall(
-    String uuid, {
-    required String callerId,
-    Map<String, dynamic>? data,
-    Map<String, dynamic>? metadata,
-    CallType callType = CallType.audio,
-    bool holding = false,
-    bool muted = false,
-    bool enableMuteAction = false,
-    bool enableHoldAction = false,
-    bool hasVideoCapability = false,
-    bool timer = true,
-    CallState? timerStartOnState,
-    CallProvider? onCallProvider,
-  });
-
-  Future<void> onGoingCall(
-    String uuid, {
-    required String callerId,
-    Map<String, dynamic>? data,
-    Map<String, dynamic>? metadata,
-    CallType callType = CallType.audio,
-    bool holding = false,
-    bool muted = false,
-    bool enableMuteAction = false,
-    bool enableHoldAction = false,
-    bool hasVideoCapability = false,
-    bool timer = true,
-    CallState? timerStartOnState,
-    CallProvider? onCallProvider,
-    CallState stateOverride = CallState.active,
-  });
-
-  Future<void> callEnded(
-    String uuid, {
-    required String callerId,
-    CallType callType = CallType.audio,
-    DateTime? startTime,
-  });
-
+  /// Get a notification by uuid
   CKNotification? getNotification(String uuid);
 
-  List<CKNotification> getAllNotifications();
+  /// Get all notifications currently visible.
+  Iterable<CKNotification> getAllNotifications();
+
+  /// Obtain stream describing changes to notifications
+  Stream<CKNotification> get notificationChangeStream;
+
+  /// Obtain stream of all notifications currently visible
+  Stream<Iterable<CKNotification>> get notificationStream;
 }
