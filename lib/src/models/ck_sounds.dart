@@ -11,6 +11,11 @@ class CKSound {
       this.looping = false,
       this.enabled = true,
       this.delay = const Duration(seconds: 0)});
+
+  @override
+  String toString() {
+    return 'CKSound{looping: $looping, enabled: $enabled, delay: $delay, type: $type}';
+  }
 }
 
 class CKURLSound extends CKSound {
@@ -21,6 +26,11 @@ class CKURLSound extends CKSound {
       super.enabled,
       super.delay,
       super.type = CKSoundType.url});
+
+  @override
+  String toString() {
+    return 'CKURLSound{url: $url}';
+  }
 }
 
 class CKAssetSound extends CKSound {
@@ -31,6 +41,11 @@ class CKAssetSound extends CKSound {
       super.enabled,
       super.delay,
       super.type = CKSoundType.asset});
+
+  @override
+  String toString() {
+    return 'CKAssetSound{asset: $asset}';
+  }
 }
 
 class CKSounds {
@@ -74,5 +89,10 @@ class CKSounds {
       holding: holding ?? const CKURLSound(defaultHoldUrl),
       ended: ended,
     );
+  }
+
+  @override
+  String toString() {
+    return 'CKSounds{enabled: $enabled, incoming: $incoming, dialing: $dialing, callWaiting: $callWaiting, holding: $holding, ended: $ended}';
   }
 }
