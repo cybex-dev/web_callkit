@@ -23,6 +23,8 @@ class CallTimer {
     }
     _state = StopwatchState.running;
     _startTimer();
+    // Notify the initial elapsed time
+    _onTick?.call(0);
   }
 
   /// Stop the stopwatch and reset the elapsed time.
@@ -33,6 +35,7 @@ class CallTimer {
     }
     _state = StopwatchState.stopped;
     _elapsed = Duration.zero;
+    _stopTimer();
   }
 
   /// Pause the stopwatch if it is running.
@@ -76,10 +79,13 @@ class CallTimer {
 
   /// Describe the elapsed time in the format HH:MM:SS.
   String describe() {
-    final hours = _elapsed.inHours.toString().padLeft(2, '0');
+    String hours = "";
+    if(_elapsed.inHours > 0) {
+      hours = "${_elapsed.inHours.toString().padLeft(2, '0')}:";
+    }
     final minutes = (_elapsed.inMinutes % 60).toString().padLeft(2, '0');
     final seconds = (_elapsed.inSeconds % 60).toString().padLeft(2, '0');
-    return "$hours:$minutes:$seconds";
+    return "$hours$minutes:$seconds";
   }
 
   void _tick(Timer timer) {

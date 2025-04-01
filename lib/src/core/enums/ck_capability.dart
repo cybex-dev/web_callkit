@@ -10,4 +10,7 @@ enum CallKitCapability {
 
   /// Ability to enable video.
   video,
+
+  /// Ability to silence an incoming call.
+  silence,
 }

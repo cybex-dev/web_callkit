@@ -3,20 +3,21 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:simple_print/simple_print.dart';
+import 'package:web_callkit/src/models/ck_notification_action.dart';
+import 'package:web_callkit/src/utils/utils.dart';
 
 import '../core/core.dart';
+import '../managers/call_timer.dart';
 import '../managers/managers.dart';
 import '../models/models.dart';
 import '../platform_interface/web_callkit_platform_interface.dart';
 
-typedef OnNotificationDismissed = void Function(CKCall call);
-
 /// An implementation of [WebCallkitPlatform] that uses method channels.
 class MethodChannelWebCallkit extends WebCallkitPlatform {
   static const tag = 'web_callkit';
+  final Map<String, CallTimer> _timers = {};
 
-  // ignore: unused_field
-  late final AudioManager _audioManager;
+  // late final AudioManager _audioManager;
   late final CallManager _callManager;
   late final NotificationManager _notificationManager;
 
@@ -25,51 +26,53 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   StreamSubscription<CKCallResult>? _dismissStreamSubscription;
   StreamSubscription<CallEvent>? _callManagerStreamSubscription;
 
-  // ignore: unused_field
-  OnNotificationDismissed? _onNotificationDismissed;
-
   OnCallActionListener? _onCallActionListener;
   OnCallEventListener? _onCallEventListener;
   OnDisconnectListener? _onDisconnectListener;
   OnCallTypeChangeListener? _onCallTypeChangeListener;
   OnDismissedListener? _onDismissedListener;
 
-  late CKConfiguration _configuration;
+  CKConfiguration _configuration;
+  final Map<String, bool> _defaultFlags = {
+    NotificationManager.CK_EXTRA_PERSIST: true,
+  };
 
   /// The method channel used to interact with the native platform.
   @visibleForTesting
   final methodChannel = const MethodChannel('web_callkit');
 
   MethodChannelWebCallkit({
-    AudioManager? audioManager,
+    // AudioManager? audioManager,
     CallManager? callManager,
     NotificationManager? notificationManager,
     CKConfiguration? configuration,
-  })  : _audioManager = audioManager ?? AudioManager(),
+  })  : /*_audioManager = audioManager ?? AudioManager(),*/
         _callManager = callManager ?? CallManager(),
-        _notificationManager = notificationManager ?? NotificationManagerImpl(),
-        _configuration =
-            configuration ?? WebCallkitPlatform.defaultConfiguration,
+        _notificationManager = notificationManager ?? NotificationManagerImplWeb(),
+        _configuration = configuration ?? WebCallkitPlatform.defaultConfiguration,
         super() {
     _setupNotificationEventListeners();
+    _callManager.setOnCallUpdate(_onCallUpdated);
+  }
+
+  void _onCallUpdated(String uuid, CKCall update, CKCall current) {
+    if (current.state != update.state) {
+      _onCallStatusChanged(uuid, update, current);
+    }
   }
 
   void _setupNotificationEventListeners() {
     /// Listen for action stream events
-    _actionStreamSubscription =
-        _notificationManager.actionStream.listen(_onActionListener);
+    _actionStreamSubscription = _notificationManager.actionStream.listen(_onActionListener);
 
     /// Listen for dismiss stream events
-    _dismissStreamSubscription =
-        _notificationManager.dismissStream.listen(_onDismissListener);
+    _dismissStreamSubscription = _notificationManager.dismissStream.listen(_onDismissListener);
 
     /// Listen for tap stream events
-    _tapStreamSubscription =
-        _notificationManager.tapStream.listen(_onTapListener);
+    _tapStreamSubscription = _notificationManager.tapStream.listen(_onTapListener);
 
     /// Listen to call events, respond via notification & audio managers
-    _callManagerStreamSubscription =
-        _callManager.eventStream.listen(_onCallEvent);
+    _callManagerStreamSubscription = _callManager.eventStream.listen(_onCallEvent);
   }
 
   void _onActionListener(CKCallResult result) {
@@ -78,22 +81,23 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   }
 
   void _onDismissListener(CKCallResult result) {
-    printDebug("Dismissed notification: ${result.uuid}",
-        tag: NotificationManager.tag);
+    printDebug("Dismissed notification: ${result.uuid}", tag: NotificationManager.tag);
     final persist = result.containsFlag(NotificationManager.CK_EXTRA_PERSIST);
-    if (!persist) {
-      _dismissNotification(result.uuid);
+    if (result.uuid != null) {
+      final uuid = result.uuid!;
+      if (!persist) {
+        _dismissNotification(uuid);
+      } else {
+        _onDismissedListener?.call(uuid, ActionSource.notification);
+      }
     } else {
-      _onDismissedListener?.call(result.uuid, ActionSource.notification);
+      // case when uuid is null, e.g. group display
     }
   }
 
   void _onTapListener(CKCallResult result) {
     printDebug("Tapped notification: ${result.uuid}", tag: tag);
-  }
-
-  CKCall _getCall(String uuid) {
-    return _callManager.getCall(uuid)!;
+    _onCallAction(result, ActionSource.notification);
   }
 
   @override
@@ -104,35 +108,23 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     Set<CallAttributes>? attributes,
     Map<String, dynamic>? data,
     Map<String, dynamic>? metadata,
+    CallType callType = CallType.audio,
     CallState? stateOverride,
   }) async {
-    final attr = attributes ?? _configuration.attributes;
+    final ckAttributes = attributes ?? _configuration.attributes;
+    final ckCapabilities = capabilities ?? _configuration.capabilities;
     CKCall call = CKCall.init(
       uuid: uuid,
       localizedName: handle,
-      attributes: attr,
-      callType: CallType.audio,
+      attributes: ckAttributes,
+      capabilities: ckCapabilities,
+      callType: callType,
       data: data,
     ).copyWith(state: stateOverride ?? CallState.ringing);
     _callManager.addCall(call);
 
-    final capabilities = _configuration.capabilities;
-    await _notificationManager.incomingCall(
-      call.uuid,
-      callerId: call.localizedName,
-      callType: call.callType,
-      holding: call.isHolding,
-      muted: call.isMuted,
-      enableHoldAction: capabilities.contains(CallKitCapability.supportHold),
-      enableMuteAction: capabilities.contains(CallKitCapability.mute),
-      hasVideoCapability: true,
-      data: call.data,
-      onCallProvider: _getCall,
-      timer: _configuration.timer.enabled,
-      timerStartOnState: _configuration.timer.startOnState,
-      metadata: metadata,
-    );
-
+    final notification = _generateNotification(call: call, capabilities: capabilities, metadata: metadata);
+    await _notificationManager.add(notification, flags: _defaultFlags);
     return call;
   }
 
@@ -144,34 +136,22 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     Set<CallAttributes>? attributes,
     Map<String, dynamic>? data,
     Map<String, dynamic>? metadata,
+    CallType callType = CallType.audio,
   }) async {
-    final attr = attributes ?? _configuration.attributes;
+    final ckAttributes = attributes ?? _configuration.attributes;
+    final ckCapabilities = capabilities ?? _configuration.capabilities;
     CKCall call = CKCall.init(
       uuid: uuid,
       localizedName: handle,
-      attributes: attr,
-      callType: CallType.audio,
+      attributes: ckAttributes,
+      capabilities: ckCapabilities,
+      callType: callType,
       data: data,
     );
     _callManager.addCall(call);
 
-    final capabilities = _configuration.capabilities;
-    await _notificationManager.outgoingCall(
-      call.uuid,
-      callerId: call.localizedName,
-      callType: call.callType,
-      holding: call.isHolding,
-      muted: call.isMuted,
-      enableHoldAction: capabilities.contains(CallKitCapability.supportHold),
-      enableMuteAction: capabilities.contains(CallKitCapability.mute),
-      hasVideoCapability: true,
-      data: call.data,
-      onCallProvider: _getCall,
-      timer: _configuration.timer.enabled,
-      timerStartOnState: _configuration.timer.startOnState,
-      metadata: metadata,
-    );
-
+    final notification = _generateNotification(call: call, capabilities: ckCapabilities, metadata: metadata);
+    await _notificationManager.add(notification, flags: _defaultFlags);
     return call;
   }
 
@@ -184,6 +164,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     Map<String, dynamic>? data,
     bool holding = false,
     CallType callType = CallType.audio,
+    Map<String, dynamic>? metadata,
   }) async {
     final ckAttributes = attributes ?? _configuration.attributes;
     final ckCapabilities = capabilities ?? _configuration.capabilities;
@@ -195,25 +176,11 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
       capabilities: ckCapabilities,
       data: data,
     );
-    _callManager.addCall(call);
-    final metadata = _notificationManager.getNotification(uuid)?.metadata;
 
-    await _notificationManager.onGoingCall(
-      uuid,
-      callerId: handle,
-      callType: call.callType,
-      holding: call.isHolding,
-      muted: call.isMuted,
-      enableHoldAction:
-          call.hasCapabilitySupportsHold || call.hasCapabilityHold,
-      enableMuteAction: call.hasCapabilityMute,
-      hasVideoCapability: call.hasCapabilityVideo,
-      data: data,
-      onCallProvider: _getCall,
-      timer: _configuration.timer.enabled,
-      timerStartOnState: _configuration.timer.startOnState,
-      metadata: metadata,
-    );
+    _callManager.addCall(call);
+
+    final notification = _generateNotification(call: call, capabilities: ckCapabilities, metadata: metadata);
+    await _notificationManager.add(notification, flags: _defaultFlags);
     return call;
   }
 
@@ -222,8 +189,18 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     String uuid, {
     required DisconnectResponse response,
   }) async {
-    _callManager.removeCall(uuid);
-    await _notificationManager.dismiss(uuid: uuid);
+    // state check for response
+    final call = _callManager.getCall(uuid);
+    if (call == null) {
+      printDebug("Call with uuid: $uuid not found.", tag: tag);
+      return;
+    }
+    final validResponses = validCallStateDisconnectResponses[call.state] ?? DisconnectResponse.values;
+    if (!validResponses.contains(response)) {
+      printWarning("Invalid response for call state: ${call.state}", tag: tag);
+      return;
+    }
+    _callManager.removeCall(uuid, response: response);
   }
 
   @override
@@ -233,6 +210,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   }) async {
     final call = _callManager.getCall(uuid);
     if (call == null) {
+      printDebug("Call with uuid: $uuid not found.", tag: tag);
       return null;
     }
 
@@ -241,27 +219,20 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     for (var value in attributes) {
       switch (value) {
         case CallAttributes.mute:
-          final hasCapability =
-              call.capabilities.contains(CallKitCapability.mute);
+          final hasCapability = call.capabilities.contains(CallKitCapability.mute);
           if (!hasCapability) {
-            printDebug(
-                "Mute attribute not supported. Please enable it with CallKitCapability.mute.",
-                tag: tag);
+            printDebug("Mute attribute not supported. Please enable it with CallKitCapability.mute.", tag: tag);
           } else {
             moderatedAttributes.add(value);
           }
         case CallAttributes.hold:
-          final hasCapabilityHold =
-              call.capabilities.contains(CallKitCapability.hold);
-          final hasCapabilitySupportHold =
-              call.capabilities.contains(CallKitCapability.supportHold);
+          final hasCapabilityHold = call.capabilities.contains(CallKitCapability.hold);
+          final hasCapabilitySupportHold = call.capabilities.contains(CallKitCapability.supportHold);
           // if call state is initiated or dialing, we can hold with support hold capability.
           // if call is active, we can hold with hold attribute.
 
           if (!hasCapabilityHold && !hasCapabilitySupportHold) {
-            printDebug(
-                "Hold attribute not supported. Please enable it with CallKitCapability.supportHold or CallKitCapability.hold.",
-                tag: tag);
+            printDebug("Hold attribute not supported. Please enable it with CallKitCapability.supportHold or CallKitCapability.hold.", tag: tag);
           } else {
             switch (call.state) {
               case CallState.initiated:
@@ -269,9 +240,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
                 if (hasCapabilitySupportHold) {
                   moderatedAttributes.add(value);
                 } else {
-                  printDebug(
-                      "Hold attribute not supported in current state: ${call.state}",
-                      tag: tag);
+                  printDebug("Hold attribute not supported in current state: ${call.state}", tag: tag);
                 }
                 break;
               case CallState.active:
@@ -280,9 +249,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
                 }
                 break;
               default:
-                printDebug(
-                    "Hold attribute not supported in current state: ${call.state}",
-                    tag: tag);
+                printDebug("Hold attribute not supported in current state: ${call.state}", tag: tag);
                 break;
             }
           }
@@ -292,23 +259,10 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     final update = call.copyWith(attributes: moderatedAttributes);
     _callManager.updateCall(update);
     final metadata = _notificationManager.getNotification(uuid)?.metadata;
+    final ckCapabilities = update.capabilities;
 
-    await _notificationManager.onGoingCall(
-      uuid,
-      callerId: update.localizedName,
-      callType: update.callType,
-      holding: update.isHolding,
-      muted: update.isMuted,
-      enableHoldAction:
-          update.hasCapabilitySupportsHold || update.hasCapabilityHold,
-      enableMuteAction: update.hasCapabilityMute,
-      hasVideoCapability: true,
-      data: update.data,
-      onCallProvider: _getCall,
-      timer: _configuration.timer.enabled,
-      timerStartOnState: _configuration.timer.startOnState,
-      metadata: metadata,
-    );
+    final notification = _generateNotification(call: update, capabilities: ckCapabilities, metadata: metadata);
+    await _notificationManager.add(notification, flags: _defaultFlags);
 
     return update;
   }
@@ -320,28 +274,17 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   }) async {
     final call = _callManager.getCall(uuid);
     if (call == null) {
-      throw Exception("Call with uuid: $uuid not found.");
+      printDebug("Call with uuid: $uuid not found.", tag: tag);
+      return Future.value();
     }
 
     final update = call.copyWith(capabilities: capabilities);
     _callManager.updateCall(update);
     final metadata = _notificationManager.getNotification(uuid)?.metadata;
+    final ckCapabilities = update.capabilities;
 
-    await _notificationManager.onGoingCall(
-      uuid,
-      callerId: update.localizedName,
-      callType: update.callType,
-      holding: update.isHolding,
-      muted: update.isMuted,
-      enableHoldAction: capabilities.contains(CallKitCapability.supportHold),
-      enableMuteAction: capabilities.contains(CallKitCapability.mute),
-      hasVideoCapability: true,
-      data: update.data,
-      onCallProvider: _getCall,
-      timer: _configuration.timer.enabled,
-      timerStartOnState: _configuration.timer.startOnState,
-      metadata: metadata,
-    );
+    final notification = _generateNotification(call: update, capabilities: ckCapabilities, metadata: metadata);
+    await _notificationManager.add(notification, flags: _defaultFlags);
 
     return update;
   }
@@ -353,29 +296,17 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   }) async {
     final call = _callManager.getCall(uuid);
     if (call == null) {
+      printDebug("Call with uuid: $uuid not found.", tag: tag);
       return null;
     }
 
     final update = call.copyWith(data: data);
     _callManager.updateCall(update);
     final metadata = _notificationManager.getNotification(uuid)?.metadata;
+    final ckCapabilities = update.capabilities;
 
-    await _notificationManager.onGoingCall(
-      uuid,
-      callerId: update.localizedName,
-      callType: update.callType,
-      holding: update.isHolding,
-      muted: update.isMuted,
-      enableHoldAction:
-          update.capabilities.contains(CallKitCapability.supportHold),
-      enableMuteAction: update.capabilities.contains(CallKitCapability.mute),
-      hasVideoCapability: true,
-      data: update.data,
-      onCallProvider: _getCall,
-      timer: _configuration.timer.enabled,
-      timerStartOnState: _configuration.timer.startOnState,
-      metadata: metadata,
-    );
+    final notification = _generateNotification(call: update, capabilities: ckCapabilities, metadata: metadata);
+    await _notificationManager.add(notification, flags: _defaultFlags);
 
     return update;
   }
@@ -387,6 +318,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   }) async {
     final call = _callManager.getCall(uuid);
     if (call == null) {
+      printDebug("Call with uuid: $uuid not found.", tag: tag);
       return null;
     }
 
@@ -432,43 +364,26 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     final update = call.copyWith(state: callStatus);
     _callManager.updateCall(update);
     final metadata = _notificationManager.getNotification(uuid)?.metadata;
+    final ckCapabilities = update.capabilities;
 
-    await _notificationManager.onGoingCall(
-      uuid,
-      callerId: update.localizedName,
-      callType: update.callType,
-      holding: update.isHolding,
-      muted: update.isMuted,
-      enableHoldAction:
-          update.capabilities.contains(CallKitCapability.supportHold),
-      enableMuteAction: update.capabilities.contains(CallKitCapability.mute),
-      hasVideoCapability: true,
-      data: update.data,
-      onCallProvider: _getCall,
-      timer: _configuration.timer.enabled,
-      timerStartOnState: _configuration.timer.startOnState,
-      stateOverride: callStatus,
-      metadata: metadata,
-    );
+    final notification = _generateNotification(call: update, capabilities: ckCapabilities, metadata: metadata);
+    await _notificationManager.add(notification, flags: _defaultFlags);
 
     return update;
   }
 
   @override
-  Future<CKCall?> updateCallType(String uuid,
-      {required CallType callType}) async {
+  Future<CKCall?> updateCallType(String uuid, {required CallType callType}) async {
     final call = _callManager.getCall(uuid);
     if (call == null) {
+      printDebug("Call with uuid: $uuid not found.", tag: tag);
       return null;
     }
 
     if (callType == CallType.video) {
       if (!call.hasCapabilityVideo) {
-        printWarning(
-            "Video call not supported. Please enable it with CallKitCapability.video.",
-            tag: tag,
-            debugOverride: true);
-        _notificationManager.repost(uuid: call.uuid);
+        printWarning("Video call not supported. Please enable it with CallKitCapability.video.", tag: tag, debugOverride: true);
+        // _notificationManager.repost(uuid: call.uuid);
         return call;
       }
     }
@@ -476,23 +391,10 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     final update = call.copyWith(callType: callType);
     _callManager.updateCall(update);
     final metadata = _notificationManager.getNotification(uuid)?.metadata;
+    final ckCapabilities = update.capabilities;
 
-    await _notificationManager.onGoingCall(
-      uuid,
-      callerId: update.localizedName,
-      callType: callType,
-      holding: update.isHolding,
-      muted: update.isMuted,
-      enableHoldAction:
-          update.capabilities.contains(CallKitCapability.supportHold),
-      enableMuteAction: update.capabilities.contains(CallKitCapability.mute),
-      hasVideoCapability: true,
-      data: update.data,
-      timer: _configuration.timer.enabled,
-      timerStartOnState: _configuration.timer.startOnState,
-      onCallProvider: _getCall,
-      metadata: metadata,
-    );
+    final notification = _generateNotification(call: update, capabilities: ckCapabilities, metadata: metadata);
+    await _notificationManager.add(notification, flags: _defaultFlags);
 
     return update;
   }
@@ -518,115 +420,136 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   }
 
   Future<void> _onCallAction(CKCallResult result, ActionSource source) async {
-    final call = _callManager.getCall(result.uuid);
-    final callState = call?.state;
-    switch (result.action) {
-      case CKCallAction.none:
-        // do nothing
-        break;
+    if (result.uuid != null) {
+      final uuid = result.uuid!;
+      final call = _callManager.getCall(uuid);
+      final callState = call?.state;
+      switch (result.action) {
+        case CKCallAction.none:
+          printDebug("Call Action: none: $uuid", tag: tag);
+          // do nothing
+          break;
 
-      case CKCallAction.answer:
-        if (callState != CallState.ringing) {
-          printDebug("Call not in ringing state. Ignoring answer action.",
-              tag: tag);
-          return;
-        }
-        printDebug("Call answered: ${result.uuid}", tag: tag);
-        _onCallActionListener?.call(result.uuid, CKCallAction.answer, source);
-        break;
+        case CKCallAction.answer:
+          printDebug("Call Action: answered: $uuid", tag: tag);
+          if (callState != CallState.ringing) {
+            printDebug("Call not in ringing state. Ignoring answer action.", tag: tag);
+            return;
+          }
+          printDebug("Call answered: $uuid", tag: tag);
+          _onCallActionListener?.call(uuid, CKCallAction.answer, source);
+          break;
 
-      case CKCallAction.decline:
-        if (callState != CallState.ringing) {
-          printDebug("Call not in ringing state. Ignoring decline action.",
-              tag: tag);
-          return;
-        }
-        printDebug("Call declined: ${result.uuid}", tag: tag);
-        _onCallActionListener?.call(result.uuid, CKCallAction.decline, source);
-        break;
+        case CKCallAction.decline:
+          printDebug("Call Action: declined: $uuid", tag: tag);
+          if (callState != CallState.ringing) {
+            printDebug("Call not in ringing state. Ignoring decline action.", tag: tag);
+            return;
+          }
+          printDebug("Call declined: $uuid", tag: tag);
+          _onCallActionListener?.call(uuid, CKCallAction.decline, source);
+          break;
 
-      case CKCallAction.hangUp:
-        switch (call?.state) {
-          case CallState.initiated:
-          case CallState.dialing:
-            _onDisconnectListener?.call(
-                result.uuid, DisconnectResponse.canceled, source);
-            break;
-          case CallState.active:
-          case CallState.reconnecting:
-            _onDisconnectListener?.call(
-                result.uuid, DisconnectResponse.local, source);
-            break;
-          case CallState.disconnecting:
-            _onDisconnectListener?.call(
-                result.uuid, DisconnectResponse.local, source);
-            break;
-          case CallState.disconnected:
-          default:
-            printDebug(
-                "Call not in valid state. Ignoring hangup action. State: $callState",
-                tag: tag);
-            break;
-        }
-        break;
+        case CKCallAction.hangUp:
+          printDebug("Call Action: hangup: $uuid", tag: tag);
+          switch (call?.state) {
+            case CallState.initiated:
+            case CallState.dialing:
+              _onDisconnectListener?.call(uuid, DisconnectResponse.canceled, source);
+              break;
+            case CallState.active:
+            case CallState.reconnecting:
+              _onDisconnectListener?.call(uuid, DisconnectResponse.local, source);
+              break;
+            case CallState.disconnecting:
+              _onDisconnectListener?.call(uuid, DisconnectResponse.local, source);
+              break;
+            case CallState.disconnected:
+            default:
+              printDebug("Call not in valid state. Ignoring hangup action. State: $callState", tag: tag);
+              break;
+          }
+          break;
 
-      case CKCallAction.callback:
-        printDebug("Call callback: ${result.uuid}", tag: tag);
-        _onCallActionListener?.call(result.uuid, CKCallAction.callback, source);
-        break;
+        case CKCallAction.callback:
+          printDebug("Call Action: callback: $uuid", tag: tag);
+          _onCallActionListener?.call(uuid, CKCallAction.callback, source);
+          break;
 
-      case CKCallAction.switchVideo:
-        _onCallTypeChange(result, callType: CallType.video, source: source);
-        break;
+        case CKCallAction.switchVideo:
+          printDebug("Call Action: switch video: $uuid", tag: tag);
+          _onCallTypeChange(result, callType: CallType.video, source: source);
+          break;
 
-      case CKCallAction.switchAudio:
-        _onCallTypeChange(result, callType: CallType.audio, source: source);
-        break;
+        case CKCallAction.switchAudio:
+          printDebug("Call Action: switch audio: $uuid", tag: tag);
+          _onCallTypeChange(result, callType: CallType.audio, source: source);
+          break;
 
-      case CKCallAction.switchScreenShare:
-        _onCallTypeChange(result,
-            callType: CallType.screenShare, source: source);
-        break;
+        case CKCallAction.switchScreenShare:
+          printDebug("Call Action: switch screen share: $uuid", tag: tag);
+          _onCallTypeChange(result, callType: CallType.screenShare, source: source);
+          break;
 
-      case CKCallAction.mute:
-        printDebug("Call mute state: ${result.uuid}", tag: tag);
-        _onCallActionListener?.call(result.uuid, result.action, source);
-        break;
+        case CKCallAction.mute:
+          printDebug("Call Action: mute: $uuid", tag: tag);
+          _onCallActionListener?.call(uuid, result.action, source);
+          break;
 
-      case CKCallAction.unmute:
-        printDebug("Call unmute state: ${result.uuid}", tag: tag);
-        _onCallActionListener?.call(result.uuid, result.action, source);
-        break;
+        case CKCallAction.unmute:
+          printDebug("Call Action: unmute: $uuid", tag: tag);
+          _onCallActionListener?.call(uuid, result.action, source);
+          break;
 
-      case CKCallAction.hold:
-        printDebug("Call hold state: ${result.uuid}", tag: tag);
-        _onCallActionListener?.call(result.uuid, result.action, source);
-        break;
+        case CKCallAction.hold:
+          printDebug("Call Action; hold: $uuid", tag: tag);
+          _onCallActionListener?.call(uuid, result.action, source);
+          break;
 
-      case CKCallAction.unhold:
-        printDebug("Call unhold state: ${result.uuid}", tag: tag);
-        _onCallActionListener?.call(result.uuid, result.action, source);
-        break;
+        case CKCallAction.unhold:
+          printDebug("Call Action: unhold: $uuid", tag: tag);
+          _onCallActionListener?.call(uuid, result.action, source);
+          break;
 
-      case CKCallAction.dismiss:
-        _dismissNotification(result.uuid);
-        break;
+        case CKCallAction.dismiss:
+          printDebug("Call Action: dismiss: $uuid", tag: tag);
+          _dismissNotification(uuid);
+          break;
 
-      // default:
-      //   printDebug("Unknown action: ${result.action}", tag: tag);
-      //   break;
+        case CKCallAction.silence:
+          printDebug("Call Action: silence: $uuid", tag: tag);
+          if (callState != CallState.ringing) {
+            printDebug("Call not in ringing state. Ignoring silence action.", tag: tag);
+            return;
+          }
+          renotify(uuid, silent: true);
+          _onCallActionListener?.call(uuid, CKCallAction.silence, source);
+          break;
+
+        case CKCallAction.disableVideo:
+          printDebug("Call Action: disable video: $uuid", tag: tag);
+          _onCallActionListener?.call(uuid, CKCallAction.disableVideo, source);
+          break;
+
+        case CKCallAction.enableVideo:
+          printDebug("Call Action: enable video: $uuid", tag: tag);
+          _onCallActionListener?.call(uuid, CKCallAction.enableVideo, source);
+          break;
+      }
+    } else {
+      printDebug("Call Action: uuid is null", tag: tag);
     }
   }
 
   Future<void> _onCallEvent(CallEvent event) async {
+    printDebug("Call Event: ${event.type}", tag: tag);
     final call = event.call;
     // ignore: unused_local_variable
     final id = call.uuid;
-    printDebug(event);
 
     switch (event.type) {
       case CallEventType.add:
-        // report new call
+        printDebug("Call Event: add: ${event.uuid}", tag: tag);
 
         // ignore: unused_local_variable
         final call = event.call;
@@ -634,17 +557,22 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
         break;
 
       case CallEventType.update:
-        // report call update
+        printDebug("Call Event: update: ${event.uuid}", tag: tag);
 
         // ignore: unused_local_variable
         final call = event.call;
         break;
 
       case CallEventType.remove:
+        printDebug("Call Event: remove: ${event.uuid}", tag: tag);
         // dismiss/remove notification
         // ignore: unused_local_variable
         final call = event.call;
-        // _notificationManager.dismiss(uuid: event.uuid);
+        _notificationManager.dismiss(uuid: event.uuid);
+        if (event is DisconnectCallEvent) {
+          _onDisconnectListener?.call(event.uuid, event.response, ActionSource.api);
+        }
+        _stopCallTimer(id);
         break;
     }
 
@@ -688,6 +616,51 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     // }
   }
 
+  void _onCallStatusChanged(String uuid, CKCall update, CKCall current) {
+    if (current.active && !update.active) {
+      _stopCallTimer(uuid);
+      return;
+    }
+
+    if (!current.active && update.active) {
+      if (!_configuration.timer.enabled) {
+        return;
+      }
+      if (_configuration.timer.startOnState != update.state) {
+        return;
+      }
+      _startCallTimer(uuid);
+    }
+  }
+
+  void _startCallTimer(String uuid) {
+    final timer = CallTimer(
+      onTimerTick: (tick) => _onTimerUpdate(uuid, tick),
+    );
+    timer.start();
+    _timers[uuid] = timer;
+  }
+
+  void _stopCallTimer(String uuid) {
+    final timer = _timers.remove(uuid);
+    if(timer != null) {
+      timer.stop();
+    }
+  }
+
+  void _onTimerUpdate(String uuid, int duration) {
+    final call = _callManager.getCall(uuid);
+    if (call == null) {
+      return;
+    }
+    final n = _notificationManager.getNotification(uuid);
+    if (n == null) {
+      return;
+    }
+    final update = _generateNotification(call: call, capabilities: call.capabilities, metadata: n.metadata);
+    _notificationManager.add(update, flags: _defaultFlags);
+  }
+
   Future<void> dispose() {
     final futures = [
       _tapStreamSubscription?.cancel(),
@@ -698,19 +671,156 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     return Future.wait(futures);
   }
 
+  CKNotification _generateNotification({
+    required CKCall call,
+    Set<CallKitCapability>? capabilities,
+    Map<String, dynamic>? metadata,
+    //ignore: unused_element
+    Duration? offset,
+    bool? silent,
+  }) {
+    final title = _getTitle(call);
+    final body = _getDescription(call);
+    final actions = _getActions(call);
+    final icon = _getIcon(call);
+
+    final currentTime = DateTime.now();
+    final notification = CKNotification.builder(
+      uuid: call.uuid,
+      title: title,
+      body: body,
+      actions: actions,
+      icon: icon,
+      silent: silent,
+      requireInteraction: true,
+      renotify: true,
+      data: call.data,
+      timestamp: currentTime.millisecondsSinceEpoch,
+      metadata: metadata,
+    );
+    return notification;
+  }
+
+  String _getTitle(CKCall call) {
+    return call.localizedName;
+  }
+
+  String _getDescription(CKCall call) {
+    final type = call.callType;
+    final state = call.state;
+
+    String base = switch (type) {
+      CallType.screenShare => type.name.capitalize(),
+      _ => "${type.name.capitalize()} Call",
+    };
+    String description = "";
+
+    switch (state) {
+      case CallState.initiated:
+        description = "Calling $base";
+        break;
+      case CallState.ringing:
+        description = "Incoming $base";
+        break;
+      case CallState.dialing:
+        description = "Dialing $base";
+        break;
+      case CallState.active:
+        description = "Ongoing $base";
+        final timestamp = _callManager.logs[call.uuid]?.firstWhereOrNull((element) => element.state == CallState.active)?.date;
+        if(timestamp != null) {
+          final elapsed = DateTime.now().getTimeDifference(timestamp);
+          description += " ($elapsed)";
+        }
+        if (call.isHolding) {
+          description = "$description (On Hold)";
+        }
+        if (call.isMuted) {
+          description = "$description (Muted)";
+        }
+        break;
+      case CallState.reconnecting:
+        description = "$base (Reconnecting)";
+        break;
+      case CallState.disconnecting:
+        description = "$base Ending...";
+        break;
+      case CallState.disconnected:
+        description = "$base Ended";
+        break;
+    }
+
+    return description;
+  }
+
+  List<CKNotificationAction> _getActions(CKCall call) {
+    switch (call.state) {
+      case CallState.initiated:
+        return [
+          CKNotificationAction.fromNotificationAction(CKCallAction.hangUp),
+          if (call.hasCapabilityMute) CKNotificationAction.fromNotificationAction(CKCallAction.mute),
+          if (call.isAudioOnly) ...[
+            if (call.hasCapabilitySupportsHold) CKNotificationAction.fromNotificationAction(CKCallAction.hold),
+          ] else ...[
+            CKNotificationAction.fromNotificationAction(CKCallAction.switchAudio),
+          ],
+        ];
+      case CallState.ringing:
+        return [
+          CKNotificationAction.fromNotificationAction(CKCallAction.answer),
+          // CKNotificationAction.fromNotificationAction(CKCallAction.decline),
+          if (call.hasCapabilitySilence) CKNotificationAction.fromNotificationAction(CKCallAction.silence),
+        ];
+      case CallState.dialing:
+        return [
+          CKNotificationAction.fromNotificationAction(CKCallAction.hangUp),
+          if (call.hasCapabilityMute) CKNotificationAction.fromNotificationAction(CKCallAction.mute),
+          if (call.isAudioOnly) ...[
+            if (call.hasCapabilitySupportsHold) CKNotificationAction.fromNotificationAction(CKCallAction.hold),
+          ] else ...[
+            CKNotificationAction.fromNotificationAction(CKCallAction.switchAudio),
+          ],
+        ];
+      case CallState.active:
+        return [
+          CKNotificationAction.fromNotificationAction(CKCallAction.hangUp),
+        ];
+      case CallState.reconnecting:
+        return [
+          CKNotificationAction.fromNotificationAction(CKCallAction.hangUp),
+        ];
+      case CallState.disconnecting:
+        return [
+          CKNotificationAction.fromNotificationAction(CKCallAction.hangUp),
+        ];
+      case CallState.disconnected:
+        return [
+          CKNotificationAction.fromNotificationAction(CKCallAction.callback),
+          CKNotificationAction.fromNotificationAction(CKCallAction.dismiss),
+        ];
+    }
+  }
+
+  String? _getIcon(CKCall call) {
+    return null;
+  }
+
   void _onCallTypeChange(
     CKCallResult result, {
     required CallType callType,
     ActionSource source = ActionSource.notification,
   }) {
-    printDebug("Call type changed: ${result.uuid}", tag: tag);
-    // TODO - check all call states
-    final call = _callManager.getCall(result.uuid);
-    if (call != null) {
-      final event = CallEvent.update(call);
-      _onCallTypeChangeListener?.call(event, callType, source);
-    } else {
-      printDebug("_onCallTypeChange: Call not found: ${result.uuid}", tag: tag);
+    if (result.uuid != null) {
+      final uuid = result.uuid!;
+      printDebug("Call type changed: ${result.uuid}", tag: tag);
+      // TODO - check all call states
+      final call = _callManager.getCall(uuid);
+      if (call != null) {
+        final event = CallEvent.update(call);
+        _onCallTypeChangeListener?.call(event, callType, source);
+      } else {
+        printDebug("_onCallTypeChange: Call not found: $uuid}", tag: tag);
+      }
     }
   }
 
@@ -720,8 +830,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   }
 
   @override
-  Future<void> updateCallMetadata(String uuid,
-      {required Map<String, dynamic> metadata}) async {
+  Future<void> updateCallMetadata(String uuid, {required Map<String, dynamic> metadata}) async {
     final n = _notificationManager.getNotification(uuid);
     if (n == null) {
       printDebug("Notification not found: $uuid", tag: tag);
@@ -729,12 +838,21 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     }
 
     final notification = n.copyWith(metadata: metadata);
-    return _notificationManager.add(notification);
+    return _notificationManager.add(notification, flags: _defaultFlags);
   }
 
   @override
-  Future<void> renotify(String uuid, {bool silent = false}) {
-    return _notificationManager.repost(uuid: uuid);
+  Future<void> renotify(String uuid, {bool silent = false}) async {
+    printDebug("Renotify: $uuid", tag: tag);
+    final n = _notificationManager.getNotification(uuid);
+    if(n == null) {
+      printDebug("Notification not found: $uuid", tag: tag);
+      return;
+    }
+    final jsNotification = n.notification;
+    final jsOptions = jsNotification.options?.copyWith(silent: silent, requireInteraction: false);
+    final update = n.copyWith(notification: jsNotification.copyWith(options: jsOptions));
+    return _notificationManager.add(update);
   }
 
   @override
@@ -758,8 +876,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   }
 
   @override
-  void setOnCallTypeChangeListener(
-      OnCallTypeChangeListener onCallTypeChangeListener) {
+  void setOnCallTypeChangeListener(OnCallTypeChangeListener onCallTypeChangeListener) {
     _onCallTypeChangeListener = onCallTypeChangeListener;
   }
 
@@ -772,4 +889,10 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   CKNotification? getNotification(String uuid) {
     return _notificationManager.getNotification(uuid);
   }
+
+  @override
+  Future<bool> hasPermissions() => _notificationManager.hasPermissions();
+
+  @override
+  Future<bool> requestPermissions() => _notificationManager.requestPermissions();
 }

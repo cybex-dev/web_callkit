@@ -1,6 +1,6 @@
 name: web_callkit
 description: "Manage calls with an iOS-inspired Callkit for Flutter Web applications."
-version: 0.0.1+2
+version: 0.0.2+1
 homepage: "https://github.com/cybex-dev/web_callkit"
 platforms:
   web:
@@ -22,10 +22,9 @@ dependencies:
     sdk: flutter
   web: ^1.1.0
   plugin_platform_interface: ^2.0.2
-  js_notifications: ^0.0.3+3
-#  js_notifications:
-#    path: ../js_notifications
+  js_notifications: ^0.0.4
   simple_print: ^0.0.1+2
+  uuid: ^4.5.1
 
 dev_dependencies:
   flutter_test:

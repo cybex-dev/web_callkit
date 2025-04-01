@@ -1,31 +1,58 @@
 import 'dart:async';
+import 'dart:core';
 
 import 'package:flutter/foundation.dart';
 import 'package:simple_print/simple_print.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../core/core.dart';
 import '../../models/models.dart';
+
+typedef OnCallUpdate = void Function(String uuid, CKCall update, CKCall current);
+
+class CKLogEntry {
+  final String id;
+  final String uuid;
+  final DateTime date;
+  final CallState state;
+
+  const CKLogEntry._internal(this.id, this.uuid, this.date, this.state);
+
+  factory CKLogEntry.create(String uuid, DateTime date, CallState state) {
+    final id = const Uuid().v4();
+    return CKLogEntry._internal(id, uuid, date, state);
+  }
+
+  factory CKLogEntry.fromCall(CKCall call) {
+    final id = const Uuid().v4();
+    return CKLogEntry._internal(id, call.uuid, call.dateUpdated, call.state);
+  }
+
+  @override
+  String toString() {
+    return 'CKLogEntry{id: $id, uuid: $uuid, date: $date, state: $state}';
+  }
+}
 
 /// CallManager manages all calls and call events, in essence a call registry. It is responsible for adding,
 /// updating, and removing calls and publishes call events and current call registry via [callStream] and [eventStream].
 class CallManager {
   static const tag = 'call_manager';
 
-  /// List of call states that are considered active.
-  final _definesActiveCalls = [
-    CallState.initiated,
-    CallState.ringing,
-    CallState.dialing,
-    CallState.active,
-    CallState.reconnecting,
-    CallState.disconnecting,
-    CallState.disconnected,
-  ];
+  Map<String, CKCall> get activeCalls {
+    return Map.fromEntries(_calls.entries.where((e) => e.value.active));
+  }
 
-  // internal call map
+  OnCallUpdate? _onCallUpdate;
+  void setOnCallUpdate(OnCallUpdate value) {
+    _onCallUpdate = value;
+  }
+
   final Map<String, CKCall> _calls = {};
-
   Map<String, CKCall> get calls => _calls;
+
+  final Map<String, List<CKLogEntry>> _logs = {};
+  Map<String, List<CKLogEntry>> get logs => _logs;
 
   // internal call stream
   late StreamSubscription<CallEvent> _callEventSubscription;
@@ -87,7 +114,7 @@ class CallManager {
   }
 
   /// remove call from call manager if call exists, triggers update event
-  void removeCall(String uuid) {
+  void removeCall(String uuid, {required DisconnectResponse response}) {
     final call = _calls.remove(uuid);
     if (call == null) {
       printDebug("Failed to remove call with uuid: $uuid. Call not found.",
@@ -95,7 +122,7 @@ class CallManager {
       return;
     }
 
-    final event = CallEvent.remove(call);
+    final event = DisconnectCallEvent.reason(call, response: response);
     _addEvent(event);
   }
 
@@ -161,6 +188,7 @@ class CallManager {
       }
     }
     _calls[call.uuid] = call;
+    _addLogEntry(call);
   }
 
   /// Update call in internal call map
@@ -171,6 +199,8 @@ class CallManager {
     final current = _calls[uuid]!;
     final updated = current.update(call).copyWith(dateUpdated: DateTime.now());
     _calls[uuid] = updated;
+    _addLogEntry(updated);
+    _onCallUpdate?.call(uuid, updated, current);
   }
 
   /// Remove call from internal call map
@@ -181,13 +211,25 @@ class CallManager {
       // return;
     }
     _calls.remove(uuid);
+    _clearLogEntries(uuid);
   }
 
   /// Check if there are any active calls, as defined by "active" call states in [_definesActiveCalls].
   bool get hasActiveCalls {
-    return calls.values
-        .map((event) => event.state)
-        .any((event) => _definesActiveCalls.contains(event));
+    return calls.values.any((event) => event.active);
+  }
+
+  void _addLogEntry(CKCall call) {
+    final log = CKLogEntry.fromCall(call);
+    printDebug("$tag: $log", tag: "LOG:");
+    _logs.putIfAbsent(call.uuid, () => []).add(log);
+  }
+
+  void _clearLogEntries(String uuid) {
+    printDebug("$tag: Clearing log entries for call with uuid: $uuid", tag: "LOG:");
+    if (_logs.containsKey(uuid)) {
+      _logs.remove(uuid);
+    }
   }
 
 //endregion

@@ -13,6 +13,12 @@ class CKCall {
   final Map<String, dynamic>? data;
   final Set<CallKitCapability> capabilities;
 
+  /// List of call states that are considered active.
+  static final _definesActiveCalls = [
+    CallState.active,
+    CallState.reconnecting,
+  ];
+
   CKCall._internal({
     required this.uuid,
     required this.localizedName,
@@ -38,11 +44,11 @@ class CKCall {
       localizedName: localizedName,
       dateStarted: DateTime.now(),
       dateUpdated: DateTime.now(),
-      attributes: attributes,
+      attributes: Set.of(attributes),
       callType: callType,
       state: CallState.initiated,
-      data: data,
-      capabilities: capabilities,
+      data: data == null ? null : Map.of(data),
+      capabilities: Set.of(capabilities),
     );
   }
 
@@ -152,4 +158,8 @@ class CKCall {
   bool get hasCapabilityMute => capabilities.contains(CallKitCapability.mute);
 
   bool get hasCapabilityVideo => capabilities.contains(CallKitCapability.video);
+
+  bool get hasCapabilitySilence => capabilities.contains(CallKitCapability.silence);
+
+  bool get active => _definesActiveCalls.contains(state);
 }
