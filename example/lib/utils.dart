@@ -17,6 +17,18 @@ extension SetExtensions<T> on Set<T> {
       return addWith(value);
     }
   }
+
+  bool equals(Set<T> other) {
+    if (length != other.length) {
+      return false;
+    }
+    for (var element in this) {
+      if (!other.contains(element)) {
+        return false;
+      }
+    }
+    return true;
+  }
 }
 
 extension IterableExtensions<T> on Iterable<T> {
@@ -60,8 +72,11 @@ extension MapExtensions<K, V> on Map<K, V> {
   }
 
   Map<String, String> toStringMap() {
-    return Map<String, String>.fromEntries(entries.map(
-        (entry) => MapEntry(entry.key.toString(), entry.value.toString())));
+    final items = entries.map((entry) => MapEntry(entry.key.toString(), entry.value.toString()));
+    if(items.length != length) {
+      throw Exception("Failed to convert all items to string map");
+    }
+    return Map<String, String>.fromEntries(items);
   }
 }
 

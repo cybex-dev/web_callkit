@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../utils.dart';
 
 class DataGridWidget extends StatefulWidget {
   final Set<String> dataKeys;
@@ -63,11 +64,11 @@ class _DataGridWidgetState extends State<DataGridWidget> {
   }
 
   void _notifyChanges() {
-    dataChecked =
-        dataChecked.where((key) => rows.any((row) => row.key == key)).toSet();
-    metadataChecked = metadataChecked
-        .where((key) => rows.any((row) => row.key == key))
-        .toSet();
+    _notifyDataChanges();
+    _notifyMetaChanges();
+  }
+
+  void _notifyDataChanges() {
     final updatedData = rows.fold<Map<String, String>>(
       {},
       (previousValue, element) => {
@@ -75,6 +76,10 @@ class _DataGridWidgetState extends State<DataGridWidget> {
         if (dataChecked.contains(element.key)) element.key: element.value,
       },
     );
+    widget.onDataToggle(updatedData);
+  }
+
+  void _notifyMetaChanges() {
     final updatedMetadata = rows.fold<Map<String, String>>(
       {},
       (previousValue, element) => {
@@ -82,8 +87,15 @@ class _DataGridWidgetState extends State<DataGridWidget> {
         if (metadataChecked.contains(element.key)) element.key: element.value,
       },
     );
-    widget.onDataToggle(updatedData);
     widget.onMetaToggle(updatedMetadata);
+  }
+
+  bool _updateChecked(Set<String> checked, String key, bool value) {
+    if (value == true) {
+      return checked.add(key);
+    } else {
+      return checked.remove(key);
+    }
   }
 
   @override
@@ -166,12 +178,8 @@ class _DataGridWidgetState extends State<DataGridWidget> {
                 value: dataChecked.contains(rows[index].key),
                 onChanged: (value) {
                   setState(() {
-                    if (value == true) {
-                      dataChecked.add(rows[index].key);
-                    } else {
-                      dataChecked.remove(rows[index].key);
-                    }
-                    _notifyChanges();
+                    _updateChecked(dataChecked, rows[index].key, value ?? false);
+                    _notifyDataChanges();
                   });
                 },
               ),
@@ -181,12 +189,8 @@ class _DataGridWidgetState extends State<DataGridWidget> {
                 value: metadataChecked.contains(rows[index].key),
                 onChanged: (value) {
                   setState(() {
-                    if (value == true) {
-                      metadataChecked.add(rows[index].key);
-                    } else {
-                      metadataChecked.remove(rows[index].key);
-                    }
-                    _notifyChanges();
+                    _updateChecked(metadataChecked, rows[index].key, value ?? false);
+                    _notifyMetaChanges();
                   });
                 },
               ),
