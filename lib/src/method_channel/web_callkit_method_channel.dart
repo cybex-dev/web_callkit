@@ -32,7 +32,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   OnCallTypeChangeListener? _onCallTypeChangeListener;
   OnDismissedListener? _onDismissedListener;
 
-  late CKConfiguration _configuration;
+  CKConfiguration _configuration;
   final Map<String, bool> _defaultFlags = {
     NotificationManager.CK_EXTRA_PERSIST: true,
   };
