@@ -889,4 +889,10 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   CKNotification? getNotification(String uuid) {
     return _notificationManager.getNotification(uuid);
   }
+
+  @override
+  Future<bool> hasPermissions() => _notificationManager.hasPermissions();
+
+  @override
+  Future<bool> requestPermissions() => _notificationManager.requestPermissions();
 }

@@ -151,4 +151,10 @@ abstract class WebCallkitPlatform extends PlatformInterface {
 
   /// Get a call currently in the callkit UI.
   CKNotification? getNotification(String uuid);
+
+  /// Requests notification permissions from web browser
+  Future<bool> requestPermissions();
+
+  /// Check if the notification permissions are granted
+  Future<bool> hasPermissions();
 }

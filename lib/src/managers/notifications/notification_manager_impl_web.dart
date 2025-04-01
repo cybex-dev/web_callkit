@@ -112,4 +112,10 @@ class NotificationManagerImplWeb extends NotificationManager {
 
   @override
   Stream<Iterable<CKNotification>> get notificationStream => _notificationsController.stream;
+
+  @override
+  Future<bool> hasPermissions() => Future.value(_jsNotifications.hasPermissions);
+
+  @override
+  Future<bool> requestPermissions() => _jsNotifications.requestPermissions();
 }

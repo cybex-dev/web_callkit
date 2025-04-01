@@ -20,6 +20,12 @@ abstract class NotificationManager {
   /// [CKNotificationAction] buttons (except empty actions). Action buttons with an empty action will be treated as a tap.
   Stream<CKCallResult> get tapStream;
 
+  /// Requests notification permissions from web browser
+  Future<bool> requestPermissions();
+
+  /// Check if the notification permissions are granted
+  Future<bool> hasPermissions();
+
   /// Dispose of the notification manager, releasing resources & streams
   Future<void> dispose();
 
