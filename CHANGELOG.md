@@ -1,3 +1,8 @@
+## 0.0.2+1
+
+* Add browser permission check
+* Update changelog
+
 ## 0.0.2
 
 * Rework Notification Manager
