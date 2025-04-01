@@ -83,10 +83,15 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   void _onDismissListener(CKCallResult result) {
     printDebug("Dismissed notification: ${result.uuid}", tag: NotificationManager.tag);
     final persist = result.containsFlag(NotificationManager.CK_EXTRA_PERSIST);
-    if (!persist) {
-      _dismissNotification(result.uuid);
+    if (result.uuid != null) {
+      final uuid = result.uuid!;
+      if (!persist) {
+        _dismissNotification(uuid);
+      } else {
+        _onDismissedListener?.call(uuid, ActionSource.notification);
+      }
     } else {
-      _onDismissedListener?.call(result.uuid, ActionSource.notification);
+      // case when uuid is null, e.g. group display
     }
   }
 
