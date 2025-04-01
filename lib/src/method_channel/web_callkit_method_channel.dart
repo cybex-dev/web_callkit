@@ -19,8 +19,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   static const tag = 'web_callkit';
   final Map<String, CallTimer> _timers = {};
 
-  // ignore: unused_field
-  late final AudioManager _audioManager;
+  // late final AudioManager _audioManager;
   late final CallManager _callManager;
   late final NotificationManager _notificationManager;
 
@@ -48,11 +47,11 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   final methodChannel = const MethodChannel('web_callkit');
 
   MethodChannelWebCallkit({
-    AudioManager? audioManager,
+    // AudioManager? audioManager,
     CallManager? callManager,
     NotificationManager? notificationManager,
     CKConfiguration? configuration,
-  })  : _audioManager = audioManager ?? AudioManager(),
+  })  : /*_audioManager = audioManager ?? AudioManager(),*/
         _callManager = callManager ?? CallManager(),
         _notificationManager = notificationManager ?? NotificationManagerImpl(),
         _configuration = configuration ?? WebCallkitPlatform.defaultConfiguration,
