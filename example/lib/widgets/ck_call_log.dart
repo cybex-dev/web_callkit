@@ -8,7 +8,7 @@ typedef CallLogWidgetBuilder = Widget Function(
     BuildContext context, CallEvent event);
 
 class CKCallLog extends StatefulWidget {
-  final CallLogWidgetBuilder builder;
+  final CallLogWidgetBuilder? builder;
 
   static CallLogWidgetBuilder get defaultBuilder {
     return (context, event) {
@@ -35,7 +35,7 @@ class CKCallLog extends StatefulWidget {
     };
   }
 
-  const CKCallLog({super.key, required this.builder});
+  const CKCallLog({super.key, this.builder});
 
   @override
   State<CKCallLog> createState() => _CKCallLogState();
@@ -60,6 +60,8 @@ class _CKCallLogState extends State<CKCallLog> {
 
   @override
   Widget build(BuildContext context) {
+    final logBuilder = widget.builder ?? CKCallLog.defaultBuilder;
+
     return CKCard(
       actions: [
         TextButton.icon(
@@ -76,7 +78,7 @@ class _CKCallLogState extends State<CKCallLog> {
         child: ListView(
           controller: controller,
           shrinkWrap: true,
-          children: log.map((e) => widget.builder(context, e)).toList(),
+          children: log.map((e) => logBuilder(context, e)).toList(),
         ),
       ),
     );
