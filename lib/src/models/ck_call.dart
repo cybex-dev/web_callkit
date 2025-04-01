@@ -44,11 +44,11 @@ class CKCall {
       localizedName: localizedName,
       dateStarted: DateTime.now(),
       dateUpdated: DateTime.now(),
-      attributes: attributes,
+      attributes: Set.of(attributes),
       callType: callType,
       state: CallState.initiated,
-      data: data,
-      capabilities: capabilities,
+      data: data == null ? null : Map.of(data),
+      capabilities: Set.of(capabilities),
     );
   }
 
