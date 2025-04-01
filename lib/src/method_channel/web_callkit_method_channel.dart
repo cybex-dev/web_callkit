@@ -92,10 +92,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
 
   void _onTapListener(CKCallResult result) {
     printDebug("Tapped notification: ${result.uuid}", tag: tag);
-  }
-
-  CKCall _getCall(String uuid) {
-    return _callManager.getCall(uuid)!;
+    _onCallAction(result, ActionSource.notification);
   }
 
   @override
