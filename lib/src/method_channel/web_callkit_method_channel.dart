@@ -203,6 +203,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     Map<String, dynamic>? data,
     bool holding = false,
     CallType callType = CallType.audio,
+    Map<String, dynamic>? metadata,
   }) async {
     final ckAttributes = attributes ?? _configuration.attributes;
     final ckCapabilities = capabilities ?? _configuration.capabilities;
