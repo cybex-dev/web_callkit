@@ -1,21 +1,23 @@
-import 'package:js_notifications/core/core.dart';
+import 'package:js_notifications/core/notification_action_result.dart';
 import 'package:web_callkit/src/utils/utils.dart';
 
-import '../core/core.dart';
+import '../../web_callkit.dart';
 
 class CKCallResult {
-  final String uuid;
+  final String? uuid;
   final CKCallAction action;
-  final Map<String, dynamic> data;
+  final Map<String, dynamic>? data;
 
-  const CKCallResult(
-      {required this.uuid, required this.action, required this.data});
+  const CKCallResult({
+    required this.uuid,
+    required this.action,
+    required this.data,
+  });
 
   factory CKCallResult.fromResult(NotificationActionResult result) {
-    final action =
-        CKCallAction.fromString(result.action ?? "") ?? CKCallAction.none;
-    final tag = result.tag ?? "";
-    final data = result.data ?? {};
+    final action = CKCallAction.fromString(result.action ?? "") ?? CKCallAction.none;
+    final tag = result.tag;
+    final data = result.data;
     return CKCallResult(uuid: tag, action: action, data: data);
   }
 
@@ -25,6 +27,7 @@ class CKCallResult {
   }
 
   bool containsFlag(String flag, [bool? defaultValue]) {
-    return data.getBool(flag, orElse: () => defaultValue ?? false);
+    final fallback = defaultValue ?? false;
+    return data?.getBool(flag, orElse: () => fallback) ?? fallback;
   }
 }
