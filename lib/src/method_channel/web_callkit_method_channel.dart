@@ -39,6 +39,9 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
   OnDismissedListener? _onDismissedListener;
 
   late CKConfiguration _configuration;
+  final Map<String, bool> _defaultFlags = {
+    NotificationManager.CK_EXTRA_PERSIST: true,
+  };
 
   /// The method channel used to interact with the native platform.
   @visibleForTesting
