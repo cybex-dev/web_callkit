@@ -26,6 +26,8 @@ A bird's eye overview/usage of the plugin:
 
 ### Call State flow
 
+The following describes the standard call flow expected of the `CallState` enum.
+
 ![](https://raw.githubusercontent.com/cybex-dev/web_callkit/refs/heads/master/doc/images/callflow.png)
 
 ## Limitations
@@ -34,12 +36,13 @@ A bird's eye overview/usage of the plugin:
 
 Use native browser integration, the following limitations apply to each platform. Usage of Flutter
 package [js_notifications](https://pub.dev/packages/js_notifications) is assist in browser
-notification integration to native systems. See [js_notifications > platform limitations](https://github.com/cybex-dev/js_notifications?tab=readme-ov-file#platform-limitations)
+notification integration to native systems.
+See [js_notifications > platform limitations](https://github.com/cybex-dev/js_notifications?tab=readme-ov-file#platform-limitations)
 for more information
 
 ## Installation
 
-### Import the package  
+### Import the package
 
 ```dart
 import 'package:web_callkit/web_callkit.dart';
@@ -51,10 +54,7 @@ Inform the plugin that an incoming call is being received. This will hook into t
 notification system.
 
 ```dart
-WebCallKit.instance.displayIncomingCall(
-uuid: '1234',
-handle: 'John Doe',
-);
+WebCallKit.instance.displayIncomingCall(uuid: '1234',handle: 'John Doe',);
 ```
 
 ### End the call
@@ -83,14 +83,8 @@ e.g. `WebCallKit.instance.reportCallDisconnected('1234', response: DisconnectRes
 #### Call Management
 
 CallKit provides a simple API to manage calls. The plugin provides methods to report incoming calls,
-end calls, and update call information. Futher, inspiration is taken from Android's ConnectionService 
-providing a set of capabilities to manage calls, such as:
-
-| Reason       | Description                                                 |
-|--------------|-------------------------------------------------------------|
-| hold         | Ability to place a call on hold after the call has started. |
-| supportHold  | Ability to place a call on hold from the start of the call. |
-| mute         | Ability to mute a call.                                     |
+end calls, and update call information. Futher, inspiration is taken from Android's
+ConnectionService providing a set of capabilities to manage calls:
 
 ##### Incoming Calls
 
@@ -98,17 +92,85 @@ Incoming calls are displayed on the screen with the caller's name and number. Th
 customized with the caller's name, number, and profile picture.
 
 ```dart
-WebCallKit.instance.reportNewCall(
-uuid: '1234',
-handle: 'John Doe',
-);
+WebCallKit.instance.reportNewCall(uuid: '1234', handle: 'John Doe',);
 ```
+
+##### End Calls
+
+End calls by calling the `endCall` method. This will remove the call screen and stop the browser
+notification.
+
+```dart
+WebCallKit.instance.reportCallDisconnected('1234', response:DisconnectResponse.local);
+```
+
+The response parameter is an enum of `DisconnectResponse` which specifies the reason for the call
+disconnection. Due to the CallKit's nature, the call can be disconnected for various reasons,
+such as local user requests, remote errors, or disconnects with VoIP calls due to internet
+disruptions.
+`DisconnectReseponse`s are limited call states, for example an Call with an `initiated` state
+cannot be ended with a decline.
+
+The following described scenarios are valid DisconnectResponses for specific call states:
+
+| `CallState`   | `DisconnectResponse`                                     |
+|---------------|----------------------------------------------------------|
+| initiated     | local, remote, canceled, rejected, busy, unknown, error, |
+| ringing       | remote, missed, rejected, busy, unknown, error,          |
+| dialing       | local, rejected, busy, unknown, error,                   |
+| active        | local, remote, unknown, error,                           |
+| reconnecting  | local, remote, unknown, error,                           |
+| disconnecting | local, remote, unknown, error,                           |
+| disconnected  | local, remote, unknown, error,                           |
 
 #### Notification Integration
 
+t.b.c.
+
 #### Capabilities
 
-## Limitations / Future work
+CallKit provides a set of capabilities to manage calls. These capabilities provide the ability for
+features to be limited based on developer/user requirements.
 
-- Support video & desktop streaming natively
+The following describes the capabilities available:
+
+| Reason      | Description                                                 |
+|-------------|-------------------------------------------------------------|
+| hold        | Ability to place a call on hold after the call has started. |
+| supportHold | Ability to place a call on hold from the start of the call. |
+| mute        | Ability to mute a call.                                     |
+| video       | Ability to stream/support video or screenshare streaming.   |
+| silence     | Ability to silence an incoming call.                        |
+
+The following provides an example of how to report call capabilities:
+
+```dart
+WebCallKit.instance.reportCallCapabilities('1234', capabilities: [CallCapability.hold, CallCapability.mute]);
+```
+
+#### Call Actions
+
+CallKit provides a set of actions to manage calls. These actions provide the ability for features to
+manage calls from the notification tray.
+
+The following describes the actions available:
+
+| Action            | Description                                                                                                             |
+|-------------------|-------------------------------------------------------------------------------------------------------------------------|
+| none              | No action                                                                                                               |
+| answer            | Answer & accept call intent.                                                                                            |
+| decline           | Declining call intent.                                                                                                  |
+| hangUp            | Ending a call regardless of state.                                                                                      |
+| dismiss           | Dismiss a notification.                                                                                                 |
+| callback          | Callback intent.                                                                                                        |
+| switchVideo       | Switching to video call intent subject to [CallKitCapability.switchVideo] capability.                                   |
+| switchAudio       | Switching to audio call intent, opposite of [switchVideo] and [switchScreenShare].                                      |
+| switchScreenShare | Switching to screen-share call intent, adjacent to [switchVideo] subject to [CallKitCapability.screenShare] capability. |
+| mute              | Muting a call intent subject to [CallKitCapability.mute] capability.                                                    |
+| unmute            | Unmuting a call intent, opposite of [mute].                                                                             |
+| hold              | Holding a call intent subject to [CallKitCapability.supportHold] or [CallKitCapability.hold] capability.                |
+| unhold            | Unholding a call intent, opposite of [hold].                                                                            |
+| silence           | Silencing an incoming call intent                                                                                       |
+| disableVideo      | Disabling video (on a call with video/screen share) intent                                                              |
+| enableVideo       | Enabling video (on a call with video/screen share) intent                                                               |
 
