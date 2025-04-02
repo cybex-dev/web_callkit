@@ -174,7 +174,7 @@ class _CallCapabilities extends StatelessWidget {
     return Column(
       children: [
         const Text("Call Capabilities"),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: CallKitCapability.values.map((e) {
@@ -216,7 +216,7 @@ class _CallTypeSelector extends StatelessWidget {
     return Column(
       children: [
         const Text("Call Type"),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: CallType.values.map((e) {
@@ -249,7 +249,7 @@ class _CallStateSelector extends StatelessWidget {
     return Column(
       children: [
         const Text("Call State"),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: CallState.values.map((e) {
