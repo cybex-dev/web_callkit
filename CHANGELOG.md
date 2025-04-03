@@ -1,3 +1,8 @@
+## 0.0.3
+
+* Add notification icon support
+* Update changelog
+
 ## 0.0.2+1
 
 * Add browser permission check
