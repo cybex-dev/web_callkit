@@ -768,7 +768,7 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
       case CallState.ringing:
         return [
           _generateNotificationAction(CKCallAction.answer),
-          // CKNotificationAction.fromNotificationAction(CKCallAction.decline),
+          CKNotificationAction.fromNotificationAction(CKCallAction.decline),
           if (call.hasCapabilitySilence) _generateNotificationAction(CKCallAction.silence),
         ];
       case CallState.dialing:
