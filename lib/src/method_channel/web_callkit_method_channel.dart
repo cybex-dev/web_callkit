@@ -757,48 +757,53 @@ class MethodChannelWebCallkit extends WebCallkitPlatform {
     switch (call.state) {
       case CallState.initiated:
         return [
-          CKNotificationAction.fromNotificationAction(CKCallAction.hangUp),
-          if (call.hasCapabilityMute) CKNotificationAction.fromNotificationAction(CKCallAction.mute),
+          _generateNotificationAction(CKCallAction.hangUp),
+          if (call.hasCapabilityMute) _generateNotificationAction(CKCallAction.mute),
           if (call.isAudioOnly) ...[
-            if (call.hasCapabilitySupportsHold) CKNotificationAction.fromNotificationAction(CKCallAction.hold),
+            if (call.hasCapabilitySupportsHold) _generateNotificationAction(CKCallAction.hold),
           ] else ...[
-            CKNotificationAction.fromNotificationAction(CKCallAction.switchAudio),
+            _generateNotificationAction(CKCallAction.switchAudio),
           ],
         ];
       case CallState.ringing:
         return [
-          CKNotificationAction.fromNotificationAction(CKCallAction.answer),
+          _generateNotificationAction(CKCallAction.answer),
           // CKNotificationAction.fromNotificationAction(CKCallAction.decline),
-          if (call.hasCapabilitySilence) CKNotificationAction.fromNotificationAction(CKCallAction.silence),
+          if (call.hasCapabilitySilence) _generateNotificationAction(CKCallAction.silence),
         ];
       case CallState.dialing:
         return [
-          CKNotificationAction.fromNotificationAction(CKCallAction.hangUp),
-          if (call.hasCapabilityMute) CKNotificationAction.fromNotificationAction(CKCallAction.mute),
+          _generateNotificationAction(CKCallAction.hangUp),
+          if (call.hasCapabilityMute) _generateNotificationAction(CKCallAction.mute),
           if (call.isAudioOnly) ...[
-            if (call.hasCapabilitySupportsHold) CKNotificationAction.fromNotificationAction(CKCallAction.hold),
+            if (call.hasCapabilitySupportsHold) _generateNotificationAction(CKCallAction.hold),
           ] else ...[
-            CKNotificationAction.fromNotificationAction(CKCallAction.switchAudio),
+            _generateNotificationAction(CKCallAction.switchAudio),
           ],
         ];
       case CallState.active:
         return [
-          CKNotificationAction.fromNotificationAction(CKCallAction.hangUp),
+          _generateNotificationAction(CKCallAction.hangUp),
         ];
       case CallState.reconnecting:
         return [
-          CKNotificationAction.fromNotificationAction(CKCallAction.hangUp),
+          _generateNotificationAction(CKCallAction.hangUp),
         ];
       case CallState.disconnecting:
         return [
-          CKNotificationAction.fromNotificationAction(CKCallAction.hangUp),
+          _generateNotificationAction(CKCallAction.hangUp),
         ];
       case CallState.disconnected:
         return [
-          CKNotificationAction.fromNotificationAction(CKCallAction.callback),
-          CKNotificationAction.fromNotificationAction(CKCallAction.dismiss),
+          _generateNotificationAction(CKCallAction.callback),
+          _generateNotificationAction(CKCallAction.dismiss),
         ];
     }
+  }
+
+  CKNotificationAction _generateNotificationAction(CKCallAction action) {
+    final icon = _configuration.icons[action];
+    return CKNotificationAction.fromNotificationAction(action, icon: icon);
   }
 
   String? _getIcon(CKCall call) {
