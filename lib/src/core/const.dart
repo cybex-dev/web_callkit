@@ -4,7 +4,7 @@ const Duration durationSecond = Duration(seconds: 1);
 // ignore: constant_identifier_names
 const CALLKIT_PERSIST = "ck_persist";
 
-const Map<CKCallState, List<CKDisconnectResponse>> validCallStateCKDisconnectResponses = {
+const Map<CKCallState, List<CKDisconnectResponse>> validCallStateDisconnectResponses = {
   CKCallState.initiated: [
     CKDisconnectResponse.unknown,
     CKDisconnectResponse.error,
