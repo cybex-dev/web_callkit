@@ -2,11 +2,11 @@ import '../../core/enums/ck_call_state.dart';
 
 class CKTimer {
   final bool enabled;
-  final CallState startOnState;
+  final CKCallState startOnState;
 
   const CKTimer({
     this.enabled = true,
-    this.startOnState = CallState.active,
+    this.startOnState = CKCallState.active,
   });
 
   @override

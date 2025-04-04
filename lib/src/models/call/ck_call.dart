@@ -12,14 +12,14 @@ class CKCall {
   final DateTime dateUpdated;
   final Set<CKCallAttributes> attributes;
   final CKCallType callType;
-  final CallState state;
+  final CKCallState state;
   final Map<String, dynamic>? data;
   final Set<CKCapability> capabilities;
 
   /// List of call states that are considered active.
   static final _definesActiveCalls = [
-    CallState.active,
-    CallState.reconnecting,
+    CKCallState.active,
+    CKCallState.reconnecting,
   ];
 
   CKCall._internal({
@@ -49,7 +49,7 @@ class CKCall {
       dateUpdated: DateTime.now(),
       attributes: Set.of(attributes),
       callType: callType,
-      state: CallState.initiated,
+      state: CKCallState.initiated,
       data: data == null ? null : Map.of(data),
       capabilities: Set.of(capabilities),
     );
@@ -77,7 +77,7 @@ class CKCall {
     Set<CKCallAttributes>? attributes,
     Set<CKCapability>? capabilities,
     CKCallType? callType,
-    CallState? state,
+    CKCallState? state,
     Map<String, dynamic>? data,
   }) {
     return CKCall._internal(

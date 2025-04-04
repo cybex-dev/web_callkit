@@ -31,11 +31,11 @@ class CKCallEvent {
 }
 
 class DisconnectCallEvent extends CKCallEvent {
-  final DisconnectResponse response;
+  final CKDisconnectResponse response;
 
   DisconnectCallEvent(String uuid, CKCall call, {required this.response}): super(uuid, CKCallEventType.remove, call);
 
-  factory DisconnectCallEvent.reason(CKCall call, {DisconnectResponse response = DisconnectResponse.local}) {
+  factory DisconnectCallEvent.reason(CKCall call, {CKDisconnectResponse response = CKDisconnectResponse.local}) {
     return DisconnectCallEvent(call.uuid, call, response: response);
   }
 

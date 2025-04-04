@@ -5,7 +5,7 @@ import '../../core/enums/ck_call_action.dart';
 
 class CKCallResult {
   final String? uuid;
-  final CallAction action;
+  final CKCallAction action;
   final Map<String, dynamic>? data;
 
   const CKCallResult({
@@ -15,7 +15,7 @@ class CKCallResult {
   });
 
   factory CKCallResult.fromResult(NotificationActionResult result) {
-    final action = CallAction.fromString(result.action ?? "") ?? CallAction.none;
+    final action = CKCallAction.fromString(result.action ?? "") ?? CKCallAction.none;
     final tag = result.tag;
     final data = result.data;
     return CKCallResult(uuid: tag, action: action, data: data);

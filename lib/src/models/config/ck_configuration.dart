@@ -11,7 +11,7 @@ class CKConfiguration {
   final Set<CKCallAttributes> attributes;
   final CKTimer timer;
   final bool notifyOnCallEnd;
-  final Map<CallAction, String> icons;
+  final Map<CKCallAction, String> icons;
   // final bool repostOnClick;
 
   const CKConfiguration({
