@@ -2,11 +2,10 @@ import 'dart:async';
 
 import 'package:js_notifications/platform_interface/js_notifications_platform_interface.dart';
 import 'package:simple_print/simple_print.dart';
-import 'package:web_callkit/src/managers/managers.dart';
-import 'package:web_callkit/src/models/ck_notification_action.dart';
 
 import '../../models/call/ck_call_result.dart';
 import '../../models/notification/ck_notification.dart';
+import 'notification_manager.dart';
 
 /// Notification Manager implementation for Web
 /// Obfuscates dependency on [JsNotificationsPlatform], specifically [JSNotification]
