@@ -12,6 +12,7 @@ const Map<CallState, List<DisconnectResponse>> validCallStateDisconnectResponses
     DisconnectResponse.remote,
     DisconnectResponse.canceled,
     DisconnectResponse.rejected,
+    DisconnectResponse.declined,
     DisconnectResponse.busy
   ],
   CallState.ringing: [
