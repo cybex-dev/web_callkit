@@ -1,11 +1,11 @@
 import 'package:js_notifications/core/notification_action_result.dart';
 import 'package:web_callkit/src/utils/utils.dart';
 
-import '../../web_callkit.dart';
+import '../../core/enums/ck_call_action.dart';
 
 class CKCallResult {
   final String? uuid;
-  final CKCallAction action;
+  final CallAction action;
   final Map<String, dynamic>? data;
 
   const CKCallResult({
@@ -15,7 +15,7 @@ class CKCallResult {
   });
 
   factory CKCallResult.fromResult(NotificationActionResult result) {
-    final action = CKCallAction.fromString(result.action ?? "") ?? CKCallAction.none;
+    final action = CallAction.fromString(result.action ?? "") ?? CallAction.none;
     final tag = result.tag;
     final data = result.data;
     return CKCallResult(uuid: tag, action: action, data: data);

@@ -1,25 +1,34 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import '../core/core.dart';
+import '../core/enums/ck_action_source.dart';
+import '../core/enums/ck_call_action.dart';
+import '../core/enums/ck_call_attributes.dart';
+import '../core/enums/ck_call_state.dart';
+import '../core/enums/ck_call_type.dart';
+import '../core/enums/ck_capability.dart';
+import '../core/enums/ck_disconnect_response.dart';
 import '../method_channel/web_callkit_method_channel.dart';
-import '../models/models.dart';
+import '../models/call/ck_call.dart';
+import '../models/call/ck_call_event.dart';
+import '../models/config/ck_configuration.dart';
+import '../models/config/ck_sounds.dart';
+import '../models/config/ck_timer.dart';
+import '../models/notification/ck_notification.dart';
 
-typedef OnDisconnectListener = void Function(
-    String uuid, DisconnectResponse response, ActionSource source);
-typedef OnCallTypeChangeListener = void Function(
-    CallEvent event, CallType callType, ActionSource source);
-typedef OnCallEventListener = void Function(
-    CallEvent event, ActionSource source);
-typedef OnCallActionListener = void Function(
-    String uuid, CKCallAction action, ActionSource source);
-typedef OnDismissedListener = void Function(String uuid, ActionSource source);
+typedef OnDisconnectListener = void Function(String uuid, CKDisconnectResponse response, CKActionSource source);
+typedef OnCallTypeChangeListener = void Function(CKCallEvent event, CKCallType callType, CKActionSource source);
+typedef OnCallEventListener = void Function(CKCallEvent event, CKActionSource source);
+typedef OnCallActionListener = void Function(String uuid, CKCallAction action, CKActionSource source);
+typedef OnDismissedListener = void Function(String uuid, CKActionSource source);
 
 abstract class WebCallkitPlatform extends PlatformInterface {
+  static const tag = 'web_callkit';
+
   static const defaultConfiguration = CKConfiguration(
     sounds: CKSounds(),
     capabilities: {
-      CallKitCapability.supportHold,
-      CallKitCapability.mute,
+      CKCapability.supportHold,
+      CKCapability.mute,
     },
     attributes: {},
     timer: CKTimer(),
@@ -60,65 +69,65 @@ abstract class WebCallkitPlatform extends PlatformInterface {
   Future<CKCall> reportIncomingCall({
     required String uuid,
     required String handle,
-    Set<CallKitCapability>? capabilities,
-    Set<CallAttributes>? attributes,
+    Set<CKCapability>? capabilities,
+    Set<CKCallAttributes>? attributes,
     Map<String, dynamic>? data,
     Map<String, dynamic>? metadata,
-    CallType callType = CallType.audio,
-    CallState? stateOverride,
+    CKCallType callType = CKCallType.audio,
+    CKCallState? stateOverride,
   });
 
   /// Register a new call with the kit. This adds a new call to the callkit UI and handles according to call lifecycle defined in [CallState].
   Future<CKCall> reportOutgoingCall({
     required String uuid,
     required String handle,
-    Set<CallKitCapability>? capabilities,
-    Set<CallAttributes>? attributes,
+    Set<CKCapability>? capabilities,
+    Set<CKCallAttributes>? attributes,
     Map<String, dynamic>? data,
     Map<String, dynamic>? metadata,
-    CallType callType = CallType.audio,
+    CKCallType callType = CKCallType.audio,
   });
 
   /// Register an ongoing call with the kit. This adds a new call to the callkit UI and handles according to call lifecycle defined in [CallState].
   Future<CKCall> reportOngoingCall({
     required String uuid,
     required String handle,
-    Set<CallKitCapability>? capabilities,
-    Set<CallAttributes>? attributes,
+    Set<CKCapability>? capabilities,
+    Set<CKCallAttributes>? attributes,
     Map<String, dynamic>? data,
     bool holding = false,
-    CallType callType = CallType.audio,
+    CKCallType callType = CKCallType.audio,
     Map<String, dynamic>? metadata,
   });
 
   /// Update the call status of a call in the callkit UI.
   Future<CKCall?> updateCallStatus(
     String uuid, {
-    required CallState callStatus,
+    required CKCallState callStatus,
   });
 
   /// Update the call type of a call in the callkit UI.
   Future<CKCall?> updateCallType(
     String uuid, {
-    required CallType callType,
+    required CKCallType callType,
   });
 
   /// Report that a call was disconnected with a response [DisconnectResponse].
   Future<void> reportCallDisconnected(
     String uuid, {
-    required DisconnectResponse response,
+    required CKDisconnectResponse response,
   });
 
   /// Update the call attributes of a call in the callkit UI.
   Future<CKCall?> updateCallAttributes(
     String uuid, {
-    required Set<CallAttributes> attributes,
+    required Set<CKCallAttributes> attributes,
   });
 
   /// Update the call capabilities of a call in the callkit UI.
   Future<CKCall?> updateCallCapabilities(
     String uuid, {
-    required Set<CallKitCapability> capabilities,
+    required Set<CKCapability> capabilities,
   });
 
   /// Update the call data of a call in the callkit UI.
@@ -141,7 +150,7 @@ abstract class WebCallkitPlatform extends PlatformInterface {
 
   Stream<Iterable<CKCall>> get callStream;
 
-  Stream<CallEvent> get eventStream;
+  Stream<CKCallEvent> get eventStream;
 
   /// Get all calls currently in the callkit UI.
   Iterable<CKCall> getCalls();

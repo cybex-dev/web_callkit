@@ -1,15 +1,15 @@
-enum CallEventType {
+enum CKCallEventType {
   add,
   update,
   remove;
 
   String get symbol {
     switch (this) {
-      case CallEventType.add:
+      case CKCallEventType.add:
         return '+';
-      case CallEventType.update:
+      case CKCallEventType.update:
         return '~';
-      case CallEventType.remove:
+      case CKCallEventType.remove:
         return '-';
       // default:
       //   return '?';

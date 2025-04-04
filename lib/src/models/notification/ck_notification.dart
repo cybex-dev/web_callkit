@@ -1,7 +1,8 @@
 import 'package:js_notifications/js_notifications_web.dart';
 import 'package:web/web.dart';
-import 'package:web_callkit/src/models/ck_notification_action.dart';
-import 'package:web_callkit/src/models/models.dart';
+
+import 'ck_notification_action.dart';
+import 'ck_notification_direction.dart';
 
 /// Wrapper for [JSNotification], with additional metadata and uuid requirement.
 class CKNotification {

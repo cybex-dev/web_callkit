@@ -25,7 +25,7 @@ class _MyAppState extends State<MyApp> {
     webCallkitPlugin.setOnCallActionHandler((uuid, action, source) {
       // ignore: avoid_print
       print("onCallActionHandler: $uuid, $action, $source");
-      if (action == CKCallAction.answer) {
+      if (action == CallAction.answer) {
         webCallkitPlugin.updateCallStatus(uuid, callStatus: CallState.active);
       } else if (action == CKCallAction.decline) {
         webCallkitPlugin.reportCallDisconnected(uuid,

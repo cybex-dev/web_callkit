@@ -1,32 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:web_callkit/web_callkit.dart';
 
-class CallStateAction extends StatelessWidget {
+class CKCallStateAction extends StatelessWidget {
   final String uuid;
-  final CallState state;
+  final CKCallState state;
 
-  const CallStateAction({super.key, required this.uuid, required this.state});
+  const CKCallStateAction({super.key, required this.uuid, required this.state});
 
-  factory CallStateAction.init(String uuid) =>
-      CallStateAction(uuid: uuid, state: CallState.initiated);
+  factory CKCallStateAction.init(String uuid) =>
+      CKCallStateAction(uuid: uuid, state: CKCallState.initiated);
 
-  factory CallStateAction.ringing(String uuid) =>
-      CallStateAction(uuid: uuid, state: CallState.ringing);
+  factory CKCallStateAction.ringing(String uuid) =>
+      CKCallStateAction(uuid: uuid, state: CKCallState.ringing);
 
-  factory CallStateAction.dialing(String uuid) =>
-      CallStateAction(uuid: uuid, state: CallState.dialing);
+  factory CKCallStateAction.dialing(String uuid) =>
+      CKCallStateAction(uuid: uuid, state: CKCallState.dialing);
 
-  factory CallStateAction.active(String uuid) =>
-      CallStateAction(uuid: uuid, state: CallState.active);
+  factory CKCallStateAction.active(String uuid) =>
+      CKCallStateAction(uuid: uuid, state: CKCallState.active);
 
-  factory CallStateAction.reconnecting(String uuid) =>
-      CallStateAction(uuid: uuid, state: CallState.reconnecting);
+  factory CKCallStateAction.reconnecting(String uuid) =>
+      CKCallStateAction(uuid: uuid, state: CKCallState.reconnecting);
 
-  factory CallStateAction.disconnecting(String uuid) =>
-      CallStateAction(uuid: uuid, state: CallState.disconnecting);
+  factory CKCallStateAction.disconnecting(String uuid) =>
+      CKCallStateAction(uuid: uuid, state: CKCallState.disconnecting);
 
-  factory CallStateAction.disconnected(String uuid) =>
-      CallStateAction(uuid: uuid, state: CallState.disconnected);
+  factory CKCallStateAction.disconnected(String uuid) =>
+      CKCallStateAction(uuid: uuid, state: CKCallState.disconnected);
 
   @override
   Widget build(BuildContext context) {

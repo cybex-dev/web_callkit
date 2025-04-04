@@ -18,8 +18,8 @@ class CallHoldAction extends StatelessWidget {
       label: Text(text),
       onPressed: () {
         final attr = call.isHolding
-            ? call.attributes.removeWith(CallAttributes.hold)
-            : call.attributes.addWith(CallAttributes.hold);
+            ? call.attributes.removeWith(CKCallAttributes.hold)
+            : call.attributes.addWith(CKCallAttributes.hold);
         final webCallkitPlugin = WebCallkit.instance;
         webCallkitPlugin.updateCallAttributes(call.uuid, attributes: attr);
       },

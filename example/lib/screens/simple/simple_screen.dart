@@ -67,7 +67,7 @@ class _ContentState extends State<_Content> {
                 await webCallkitPlugin.reportIncomingCall(
                   uuid: callId,
                   handle: name,
-                  stateOverride: CallState.ringing,
+                  stateOverride: CKCallState.ringing,
                 );
 
                 if (_cancelAfter) {
@@ -76,7 +76,7 @@ class _ContentState extends State<_Content> {
                     Duration(seconds: seconds),
                     () {
                       webCallkitPlugin.reportCallDisconnected(callId,
-                          response: DisconnectResponse.local);
+                          response: CKDisconnectResponse.local);
                     },
                   );
                 }
@@ -87,7 +87,7 @@ class _ContentState extends State<_Content> {
             ElevatedButton(
               onPressed: () async {
                 await webCallkitPlugin.reportCallDisconnected(callId,
-                    response: DisconnectResponse.local);
+                    response: CKDisconnectResponse.local);
               },
               child: const Text('Report Call Disconnected'),
             ),

@@ -1,4 +1,5 @@
-import '../core/core.dart';
+import '../../core/enums/ck_call_attributes.dart';
+import '../../core/enums/ck_capability.dart';
 
 /// TODO: we want customized:
 /// - custom ringing sound
@@ -11,8 +12,8 @@ class CallkitConfig {
   final CallConfig callConfig;
   final NotificationConfig notificationConfig;
 
-  final Set<CallKitCapability> capabilities;
-  final Set<CallAttributes> attributes;
+  final Set<CKCapability> capabilities;
+  final Set<CKCallAttributes> attributes;
 
   CallkitConfig({
     required this.appName,

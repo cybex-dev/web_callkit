@@ -101,7 +101,7 @@ class _CustomCallCardState extends State<_CustomCallCard> {
                     const Divider(height: 24,),
 
                     // Hold/resume call
-                    _DisconnectResponses(callId: callId),
+                    _CKDisconnectResponses(callId: callId),
                     const SizedBox(height: 16),
 
                     // Hold/resume call
@@ -113,7 +113,7 @@ class _CustomCallCardState extends State<_CustomCallCard> {
                     const SizedBox(height: 16),
 
                     // Set specific state of call
-                    _CallStateSelector(callId: callId),
+                    _CKCallStateSelector(callId: callId),
                     const SizedBox(height: 16),
 
                     // Set specific type of call
@@ -177,7 +177,7 @@ class _CallCapabilities extends StatelessWidget {
         const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: CallKitCapability.values.map((e) {
+          children: CKCapability.values.map((e) {
             final enabled = call?.capabilities.contains(e) ?? false;
             return Padding(
               padding: const EdgeInsets.all(4.0),
@@ -219,7 +219,7 @@ class _CallTypeSelector extends StatelessWidget {
         const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: CallType.values.map((e) {
+          children: CKCallType.values.map((e) {
             return Padding(
               padding: const EdgeInsets.all(4.0),
               child: ElevatedButton(
@@ -237,11 +237,11 @@ class _CallTypeSelector extends StatelessWidget {
   }
 }
 
-class _CallStateSelector extends StatelessWidget {
+class _CKCallStateSelector extends StatelessWidget {
   final String callId;
 
   // ignore: unused_element
-  const _CallStateSelector({super.key, required this.callId});
+  const _CKCallStateSelector({super.key, required this.callId});
 
   @override
   Widget build(BuildContext context) {
@@ -252,7 +252,7 @@ class _CallStateSelector extends StatelessWidget {
         const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: CallState.values.map((e) {
+          children: CKCallState.values.map((e) {
             return Padding(
               padding: const EdgeInsets.all(4.0),
               child: ElevatedButton(
@@ -293,7 +293,7 @@ class _CallMuteSelector extends StatelessWidget {
                 if (call == null) {
                   return;
                 }
-                final attr = call.attributes.addWith(CallAttributes.mute);
+                final attr = call.attributes.addWith(CKCallAttributes.mute);
                 await webCallkitPlugin.updateCallAttributes(callId, attributes: attr);
               },
               child: const Text("Mute"),
@@ -306,7 +306,7 @@ class _CallMuteSelector extends StatelessWidget {
                 if (call == null) {
                   return;
                 }
-                final attr = call.attributes.removeWith(CallAttributes.mute);
+                final attr = call.attributes.removeWith(CKCallAttributes.mute);
                 await webCallkitPlugin.updateCallAttributes(callId, attributes: attr);
               },
               child: const Text("Unmute"),
@@ -341,7 +341,7 @@ class _CallHoldSelector extends StatelessWidget {
                 if (call == null) {
                   return;
                 }
-                final attr = call.attributes.addWith(CallAttributes.hold);
+                final attr = call.attributes.addWith(CKCallAttributes.hold);
                 webCallkitPlugin.updateCallAttributes(callId, attributes: attr);
               },
               child: const Text("Hold"),
@@ -354,7 +354,7 @@ class _CallHoldSelector extends StatelessWidget {
                 if (call == null) {
                   return;
                 }
-                final attr = call.attributes.removeWith(CallAttributes.hold);
+                final attr = call.attributes.removeWith(CKCallAttributes.hold);
                 webCallkitPlugin.updateCallAttributes(callId, attributes: attr);
               },
               child: const Text("Resume"),
@@ -420,11 +420,11 @@ class _CallActionButtons extends StatelessWidget {
   }
 }
 
-class _DisconnectResponses extends StatelessWidget {
+class _CKDisconnectResponses extends StatelessWidget {
   final String callId;
 
   // ignore: unused_element
-  const _DisconnectResponses({super.key, required this.callId});
+  const _CKDisconnectResponses({super.key, required this.callId});
 
   @override
   Widget build(BuildContext context) {
@@ -435,7 +435,7 @@ class _DisconnectResponses extends StatelessWidget {
         const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: DisconnectResponse.values.map((e) {
+          children: CKDisconnectResponse.values.map((e) {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4.0),
               child: ElevatedButton(

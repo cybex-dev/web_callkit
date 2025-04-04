@@ -1,4 +1,4 @@
-enum CallState {
+enum CKCallState {
   /// For new but not yet connected calls
   initiated,
 

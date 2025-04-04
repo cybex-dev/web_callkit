@@ -1,4 +1,4 @@
-enum CallAttributes {
+enum CKCallAttributes {
   /// Call is muted, no audio is being sent.
   mute,
 

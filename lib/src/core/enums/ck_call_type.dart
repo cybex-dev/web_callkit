@@ -1,16 +1,16 @@
-enum CallType {
+enum CKCallType {
   audio,
   video,
   screenShare;
 
-  static CallType fromString(String value) {
+  static CKCallType fromString(String value) {
     switch (value) {
       case 'audio':
-        return CallType.audio;
+        return CKCallType.audio;
       case 'video':
-        return CallType.video;
+        return CKCallType.video;
       case 'screenShare':
-        return CallType.screenShare;
+        return CKCallType.screenShare;
       default:
         throw ArgumentError('Invalid call type: $value');
     }
