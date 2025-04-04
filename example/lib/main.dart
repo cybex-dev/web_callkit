@@ -25,11 +25,25 @@ class _MyAppState extends State<MyApp> {
     webCallkitPlugin.setOnCallActionHandler((uuid, action, source) {
       // ignore: avoid_print
       print("onCallActionHandler: $uuid, $action, $source");
-      if (action == CallAction.answer) {
-        webCallkitPlugin.updateCallStatus(uuid, callStatus: CallState.active);
+      if (action == CKCallAction.answer) {
+        webCallkitPlugin.updateCallStatus(uuid, callStatus: CKCallState.active);
       } else if (action == CKCallAction.decline) {
-        webCallkitPlugin.reportCallDisconnected(uuid,
-            response: DisconnectResponse.declined);
+        webCallkitPlugin.reportCallDisconnected(uuid, response: CKDisconnectResponse.declined);
+      } else if (action == CKCallAction.hangUp) {
+        final call = webCallkitPlugin.getCall(uuid);
+        if (call != null) {
+          switch (call.state) {
+            case CKCallState.ringing:
+              webCallkitPlugin.reportCallDisconnected(uuid, response: CKDisconnectResponse.declined);
+              break;
+            case CKCallState.dialing:
+              webCallkitPlugin.reportCallDisconnected(uuid, response: CKDisconnectResponse.canceled);
+              break;
+            default:
+              webCallkitPlugin.reportCallDisconnected(uuid, response: CKDisconnectResponse.local);
+              break;
+          }
+        }
       }
     });
     webCallkitPlugin.setOnCallEventListener((event, source) {
@@ -42,8 +56,9 @@ class _MyAppState extends State<MyApp> {
     });
     webCallkitPlugin.setOnDisconnectListener((uuid, response, source) {
       // ignore: avoid_print
-      webCallkitPlugin.reportCallDisconnected(uuid, response: response);
-      // webCallkitPlugin.updateCallStatus(uuid, callStatus: CallState.disconnected);
+      print("onDisconnectListener: $uuid, $response, $source");
+      // webCallkitPlugin.reportCallDisconnected(uuid, response: response);
+      // webCallkitPlugin.updateCallStatus(uuid, callStatus: CKCallState.disconnected);
     });
     webCallkitPlugin.setOnDismissedListener((uuid, source) {
       final call = webCallkitPlugin.getCall(uuid);
@@ -53,7 +68,7 @@ class _MyAppState extends State<MyApp> {
     });
     // webCallkitPlugin.setOnActionAnswered((uuid, call, source) {
     //   printDebug("onActionAnswered: $uuid, $call, $source");
-    //   webCallkitPlugin.updateCallStatus(uuid, callStatus: CallState.active);
+    //   webCallkitPlugin.updateCallStatus(uuid, callStatus: CKCallState.active);
     // });
     // webCallkitPlugin.setOnActionHangup((uuid, call, source, response) {
     //   printDebug("onActionHangup: $uuid, $call, $source, $response");
