@@ -210,8 +210,7 @@ class CallManager {
   /// Remove call from internal call map
   void _removeCall(String uuid) {
     if (!_calls.containsKey(uuid)) {
-      printDebug("Failed to remove call with uuid: $uuid. Call not found.",
-          tag: tag);
+      throw Exception("Failed to remove call with uuid: $uuid. Call not found.");
       // return;
     }
     _calls.remove(uuid);
