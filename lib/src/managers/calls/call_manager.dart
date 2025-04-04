@@ -119,7 +119,7 @@ class CallManager {
 
   /// remove call from call manager if call exists, triggers update event
   void removeCall(String uuid, {required CKDisconnectResponse response}) {
-    final call = _calls.remove(uuid);
+    final call = _calls[uuid];
     if (call == null) {
       printDebug("Failed to remove call with uuid: $uuid. Call not found.",
           tag: tag);
