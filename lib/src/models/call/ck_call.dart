@@ -1,22 +1,25 @@
 import 'dart:convert';
 
-import '../core/core.dart';
+import '../../core/enums/ck_call_attributes.dart';
+import '../../core/enums/ck_call_state.dart';
+import '../../core/enums/ck_call_type.dart';
+import '../../core/enums/ck_capability.dart';
 
 class CKCall {
   final String uuid;
   final String localizedName;
   final DateTime dateStarted;
   final DateTime dateUpdated;
-  final Set<CallAttributes> attributes;
-  final CallType callType;
-  final CallState state;
+  final Set<CKCallAttributes> attributes;
+  final CKCallType callType;
+  final CKCallState state;
   final Map<String, dynamic>? data;
-  final Set<CallKitCapability> capabilities;
+  final Set<CKCapability> capabilities;
 
   /// List of call states that are considered active.
   static final _definesActiveCalls = [
-    CallState.active,
-    CallState.reconnecting,
+    CKCallState.active,
+    CKCallState.reconnecting,
   ];
 
   CKCall._internal({
@@ -34,9 +37,9 @@ class CKCall {
   factory CKCall.init({
     required String uuid,
     required String localizedName,
-    Set<CallAttributes> attributes = const {},
-    Set<CallKitCapability> capabilities = const {},
-    CallType callType = CallType.audio,
+    Set<CKCallAttributes> attributes = const {},
+    Set<CKCapability> capabilities = const {},
+    CKCallType callType = CKCallType.audio,
     Map<String, dynamic>? data,
   }) {
     return CKCall._internal(
@@ -46,7 +49,7 @@ class CKCall {
       dateUpdated: DateTime.now(),
       attributes: Set.of(attributes),
       callType: callType,
-      state: CallState.initiated,
+      state: CKCallState.initiated,
       data: data == null ? null : Map.of(data),
       capabilities: Set.of(capabilities),
     );
@@ -71,10 +74,10 @@ class CKCall {
     String? localizedName,
     DateTime? dateStarted,
     DateTime? dateUpdated,
-    Set<CallAttributes>? attributes,
-    Set<CallKitCapability>? capabilities,
-    CallType? callType,
-    CallState? state,
+    Set<CKCallAttributes>? attributes,
+    Set<CKCapability>? capabilities,
+    CKCallType? callType,
+    CKCallState? state,
     Map<String, dynamic>? data,
   }) {
     return CKCall._internal(
@@ -138,28 +141,27 @@ class CKCall {
     return changes.join(',\n');
   }
 
-  bool get isHolding => attributes.contains(CallAttributes.hold);
+  bool get isHolding => attributes.contains(CKCallAttributes.hold);
 
-  bool get isMuted => attributes.contains(CallAttributes.mute);
+  bool get isMuted => attributes.contains(CKCallAttributes.mute);
 
-  bool get isAudioOnly => callType == CallType.audio;
+  bool get isAudioOnly => callType == CKCallType.audio;
 
-  bool get isVideoCall => callType == CallType.video;
+  bool get isVideoCall => callType == CKCallType.video;
 
   bool get hasData => data != null && data!.isNotEmpty;
 
   bool get hasCapabilities => capabilities.isNotEmpty;
 
-  bool get hasCapabilitySupportsHold =>
-      capabilities.contains(CallKitCapability.supportHold);
+  bool get hasCapabilitySupportsHold => capabilities.contains(CKCapability.supportHold);
 
-  bool get hasCapabilityHold => capabilities.contains(CallKitCapability.hold);
+  bool get hasCapabilityHold => capabilities.contains(CKCapability.hold);
 
-  bool get hasCapabilityMute => capabilities.contains(CallKitCapability.mute);
+  bool get hasCapabilityMute => capabilities.contains(CKCapability.mute);
 
-  bool get hasCapabilityVideo => capabilities.contains(CallKitCapability.video);
+  bool get hasCapabilityVideo => capabilities.contains(CKCapability.video);
 
-  bool get hasCapabilitySilence => capabilities.contains(CallKitCapability.silence);
+  bool get hasCapabilitySilence => capabilities.contains(CKCapability.silence);
 
   bool get active => _definesActiveCalls.contains(state);
 }

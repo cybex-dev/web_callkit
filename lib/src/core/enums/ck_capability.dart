@@ -1,4 +1,4 @@
-enum CallKitCapability {
+enum CKCapability {
   /// Ability to place a call on hold after the call has started.
   hold,
 

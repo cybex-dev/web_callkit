@@ -1,5 +1,6 @@
 import 'package:js_notifications/interop/interop.dart';
-import 'package:web_callkit/src/core/core.dart';
+
+import '../../core/enums/ck_call_action.dart';
 
 /// Wrapper for [JSNotificationAction]
 class CKNotificationAction extends JSNotificationAction {

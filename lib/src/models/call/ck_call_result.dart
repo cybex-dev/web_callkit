@@ -1,7 +1,7 @@
 import 'package:js_notifications/core/notification_action_result.dart';
 import 'package:web_callkit/src/utils/utils.dart';
 
-import '../../web_callkit.dart';
+import '../../core/enums/ck_call_action.dart';
 
 class CKCallResult {
   final String? uuid;

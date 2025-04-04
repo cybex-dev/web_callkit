@@ -5,8 +5,11 @@ import 'package:flutter/foundation.dart';
 import 'package:simple_print/simple_print.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../core/core.dart';
-import '../../models/models.dart';
+import '../../core/enums/ck_call_event_type.dart';
+import '../../core/enums/ck_call_state.dart';
+import '../../core/enums/ck_disconnect_response.dart';
+import '../../models/call/ck_call.dart';
+import '../../models/call/ck_call_event.dart';
 
 typedef OnCallUpdate = void Function(String uuid, CKCall update, CKCall current);
 
@@ -14,11 +17,11 @@ class CKLogEntry {
   final String id;
   final String uuid;
   final DateTime date;
-  final CallState state;
+  final CKCallState state;
 
   const CKLogEntry._internal(this.id, this.uuid, this.date, this.state);
 
-  factory CKLogEntry.create(String uuid, DateTime date, CallState state) {
+  factory CKLogEntry.create(String uuid, DateTime date, CKCallState state) {
     final id = const Uuid().v4();
     return CKLogEntry._internal(id, uuid, date, state);
   }
@@ -55,16 +58,16 @@ class CallManager {
   Map<String, List<CKLogEntry>> get logs => _logs;
 
   // internal call stream
-  late StreamSubscription<CallEvent> _callEventSubscription;
+  late StreamSubscription<CKCallEvent> _callEventSubscription;
 
   // call & event streams
   late StreamController<Iterable<CKCall>> _callStreamController;
 
   Stream<Iterable<CKCall>> get callStream => _callStreamController.stream;
 
-  late StreamController<CallEvent> _eventStreamController;
+  late StreamController<CKCallEvent> _eventStreamController;
 
-  Stream<CallEvent> get eventStream => _eventStreamController.stream;
+  Stream<CKCallEvent> get eventStream => _eventStreamController.stream;
 
   // singleton
   static final CallManager _instance = CallManager._internal();
@@ -74,7 +77,7 @@ class CallManager {
   //region Public
   CallManager._internal() {
     _callStreamController = StreamController<Iterable<CKCall>>.broadcast();
-    _eventStreamController = StreamController<CallEvent>.broadcast();
+    _eventStreamController = StreamController<CKCallEvent>.broadcast();
 
     _setupStreamListeners();
   }
@@ -92,7 +95,7 @@ class CallManager {
 
   /// Add call to call manager, triggers add event
   void addCall(CKCall call) {
-    final event = CallEvent.add(call);
+    final event = CKCallEvent.add(call);
     _addEvent(event);
   }
 
@@ -100,7 +103,8 @@ class CallManager {
   void updateCall(CKCall call) {
     final uuid = call.uuid;
     if (!_calls.containsKey(uuid)) {
-      throw Exception("Call with uuid: $uuid not found.");
+      printDebug("Failed to update call with uuid: $uuid. Call not found.", tag: tag);
+      return;
     }
 
     if (kDebugMode) {
@@ -109,13 +113,13 @@ class CallManager {
       printDebug(difference, tag: tag);
     }
 
-    final event = CallEvent.update(call);
+    final event = CKCallEvent.update(call);
     _addEvent(event);
   }
 
   /// remove call from call manager if call exists, triggers update event
-  void removeCall(String uuid, {required DisconnectResponse response}) {
-    final call = _calls.remove(uuid);
+  void removeCall(String uuid, {required CKDisconnectResponse response}) {
+    final call = _calls[uuid];
     if (call == null) {
       printDebug("Failed to remove call with uuid: $uuid. Call not found.",
           tag: tag);
@@ -145,13 +149,13 @@ class CallManager {
     _callEventSubscription = eventStream.listen((event) {
       // handle call events and update internal call map
       switch (event.type) {
-        case CallEventType.add:
+        case CKCallEventType.add:
           _addCall(event.call);
           break;
-        case CallEventType.update:
+        case CKCallEventType.update:
           _updateCall(event.uuid, event.call);
           break;
-        case CallEventType.remove:
+        case CKCallEventType.remove:
           _removeCall(event.uuid);
           break;
       }
@@ -167,7 +171,7 @@ class CallManager {
   }
 
   /// add call event to event stream
-  void _addEvent(CallEvent event) {
+  void _addEvent(CKCallEvent event) {
     _eventStreamController.add(event);
   }
 
@@ -206,8 +210,7 @@ class CallManager {
   /// Remove call from internal call map
   void _removeCall(String uuid) {
     if (!_calls.containsKey(uuid)) {
-      printDebug("Failed to remove call with uuid: $uuid. Call not found.",
-          tag: tag);
+      throw Exception("Failed to remove call with uuid: $uuid. Call not found.");
       // return;
     }
     _calls.remove(uuid);

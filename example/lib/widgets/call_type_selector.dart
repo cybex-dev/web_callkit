@@ -9,11 +9,11 @@ class CallTypeSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isAudio = call.isAudioOnly;
-    final newType = isAudio ? CallType.video : CallType.audio;
+    final newType = isAudio ? CKCallType.video : CKCallType.audio;
     final icon = switch (newType) {
-      CallType.audio => const Icon(Icons.mic),
-      CallType.video => const Icon(Icons.videocam),
-      CallType.screenShare => const Icon(Icons.screen_share),
+      CKCallType.audio => const Icon(Icons.mic),
+      CKCallType.video => const Icon(Icons.videocam),
+      CKCallType.screenShare => const Icon(Icons.screen_share),
     };
     return TextButton.icon(
       style: ButtonStyle(

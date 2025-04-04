@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:web_callkit/web_callkit.dart';
 import 'package:web_callkit_example/widgets/ck_card.dart';
 
-typedef CallLogWidgetBuilder = Widget Function(
-    BuildContext context, CallEvent event);
+typedef CallLogWidgetBuilder = Widget Function(BuildContext context, CKCallEvent event);
 
 class CKCallLog extends StatefulWidget {
   final CallLogWidgetBuilder? builder;
@@ -13,9 +12,9 @@ class CKCallLog extends StatefulWidget {
   static CallLogWidgetBuilder get defaultBuilder {
     return (context, event) {
       final icon = switch (event.type) {
-        CallEventType.add => Icons.add,
-        CallEventType.update => Icons.refresh,
-        CallEventType.remove => Icons.remove,
+        CKCallEventType.add => Icons.add,
+        CKCallEventType.update => Icons.refresh,
+        CKCallEventType.remove => Icons.remove,
       };
       return Row(
         children: [
@@ -43,8 +42,8 @@ class CKCallLog extends StatefulWidget {
 
 class _CKCallLogState extends State<CKCallLog> {
   final controller = ScrollController();
-  final List<CallEvent> log = [];
-  late final StreamSubscription<CallEvent> subscription;
+  final List<CKCallEvent> log = [];
+  late final StreamSubscription<CKCallEvent> subscription;
   final webCallkitPlugin = WebCallkit.instance;
 
   @override

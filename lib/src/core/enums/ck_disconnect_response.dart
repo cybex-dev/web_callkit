@@ -1,4 +1,4 @@
-enum DisconnectResponse {
+enum CKDisconnectResponse {
   /// Disconnect response is unknown.
   unknown,
 

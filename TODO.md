@@ -12,3 +12,9 @@
   * Ringing
   * Disconnecting
 * AudioManager
+* Notifications
+  * Mobile
+    * Enable mobile mode preventing constant notification updates
+  * Desktop
+* Vibration
+  * Customize vibration setting for notifications (including mobile mode)

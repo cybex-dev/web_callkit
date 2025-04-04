@@ -4,28 +4,29 @@ const Duration durationSecond = Duration(seconds: 1);
 // ignore: constant_identifier_names
 const CALLKIT_PERSIST = "ck_persist";
 
-const Map<CallState, List<DisconnectResponse>> validCallStateDisconnectResponses = {
-  CallState.initiated: [
-    DisconnectResponse.unknown,
-    DisconnectResponse.error,
-    DisconnectResponse.local,
-    DisconnectResponse.remote,
-    DisconnectResponse.canceled,
-    DisconnectResponse.rejected,
-    DisconnectResponse.busy
+const Map<CKCallState, List<CKDisconnectResponse>> validCallStateDisconnectResponses = {
+  CKCallState.initiated: [
+    CKDisconnectResponse.unknown,
+    CKDisconnectResponse.error,
+    CKDisconnectResponse.local,
+    CKDisconnectResponse.remote,
+    CKDisconnectResponse.canceled,
+    CKDisconnectResponse.rejected,
+    CKDisconnectResponse.declined,
+    CKDisconnectResponse.busy
   ],
-  CallState.ringing: [
-    DisconnectResponse.unknown,
-    DisconnectResponse.error,
-    DisconnectResponse.remote,
-    DisconnectResponse.missed,
-    DisconnectResponse.rejected,
-    DisconnectResponse.declined,
-    DisconnectResponse.busy
+  CKCallState.ringing: [
+    CKDisconnectResponse.unknown,
+    CKDisconnectResponse.error,
+    CKDisconnectResponse.remote,
+    CKDisconnectResponse.missed,
+    CKDisconnectResponse.rejected,
+    CKDisconnectResponse.declined,
+    CKDisconnectResponse.busy
   ],
-  CallState.dialing: [DisconnectResponse.unknown, DisconnectResponse.error, DisconnectResponse.local, DisconnectResponse.rejected, DisconnectResponse.busy],
-  CallState.active: [DisconnectResponse.unknown, DisconnectResponse.error, DisconnectResponse.local, DisconnectResponse.remote],
-  CallState.reconnecting: [DisconnectResponse.unknown, DisconnectResponse.error, DisconnectResponse.local, DisconnectResponse.remote],
-  CallState.disconnecting: [DisconnectResponse.unknown, DisconnectResponse.error, DisconnectResponse.local, DisconnectResponse.remote],
-  CallState.disconnected: [DisconnectResponse.unknown, DisconnectResponse.error, DisconnectResponse.local, DisconnectResponse.remote],
+  CKCallState.dialing: [CKDisconnectResponse.unknown, CKDisconnectResponse.error, CKDisconnectResponse.local, CKDisconnectResponse.rejected, CKDisconnectResponse.busy],
+  CKCallState.active: [CKDisconnectResponse.unknown, CKDisconnectResponse.error, CKDisconnectResponse.local, CKDisconnectResponse.remote],
+  CKCallState.reconnecting: [CKDisconnectResponse.unknown, CKDisconnectResponse.error, CKDisconnectResponse.local, CKDisconnectResponse.remote],
+  CKCallState.disconnecting: [CKDisconnectResponse.unknown, CKDisconnectResponse.error, CKDisconnectResponse.local, CKDisconnectResponse.remote],
+  CKCallState.disconnected: [CKDisconnectResponse.unknown, CKDisconnectResponse.error, CKDisconnectResponse.local, CKDisconnectResponse.remote],
 };

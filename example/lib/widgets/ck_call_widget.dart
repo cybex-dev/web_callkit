@@ -17,13 +17,13 @@ class CKCallWidget extends StatelessWidget {
       children: [
         Row(
           children: [
-            _buildIconFromCallState(),
+            _buildIconFromCKCallState(),
             const SizedBox(width: 8),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(call.localizedName),
-                _buildCallStateAndId(),
+                _buildCKCallStateAndId(),
               ],
             ),
           ],
@@ -39,41 +39,41 @@ class CKCallWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildCallStateAndId() {
+  Widget _buildCKCallStateAndId() {
     final state = call.state.name;
     final id = call.uuid;
     return Text("State: $state\nID: $id");
   }
 
-  Widget _buildIconFromCallState() {
+  Widget _buildIconFromCKCallState() {
     final state = call.state;
     switch (state) {
-      case CallState.active:
+      case CKCallState.active:
         return const Icon(Icons.call);
-      case CallState.disconnecting:
-      case CallState.disconnected:
+      case CKCallState.disconnecting:
+      case CKCallState.disconnected:
         return const Icon(Icons.call_end);
-      case CallState.ringing:
+      case CKCallState.ringing:
         return const Icon(Icons.ring_volume);
-      case CallState.initiated:
+      case CKCallState.initiated:
         return const Icon(Icons.call_made);
-      case CallState.reconnecting:
+      case CKCallState.reconnecting:
         return const Icon(Icons.refresh);
-      case CallState.dialing:
+      case CKCallState.dialing:
         return const Icon(Icons.call_made);
     }
   }
 
   List<Widget> _buildNextActions() {
     switch (call.state) {
-      case CallState.initiated:
+      case CKCallState.initiated:
         return [
-          CallStateAction.dialing(call.uuid),
+          CKCallStateAction.dialing(call.uuid),
           DisconnectAction.error(call.uuid),
         ];
-      case CallState.dialing:
+      case CKCallState.dialing:
         return [
-          CallStateAction.active(call.uuid),
+          CKCallStateAction.active(call.uuid),
           // Hold/resume call while dialing
           CallHoldAction(call: call),
           // End call (cancelled call)
@@ -83,24 +83,24 @@ class CKCallWidget extends StatelessWidget {
           // Some error occurred
           DisconnectAction.error(call.uuid),
         ];
-      case CallState.ringing:
+      case CKCallState.ringing:
         return [
           // Answer call, add hold to answer and hold
-          CallStateAction.active(call.uuid),
+          CKCallStateAction.active(call.uuid),
           // End call (mark as busy)
           DisconnectAction.busy(call.uuid),
           // Some error occurred
           DisconnectAction.error(call.uuid),
         ];
-      case CallState.active:
+      case CKCallState.active:
         return [
           // Hold/resume call while dialing
           CallTypeSelector(call: call),
           CallHoldAction(call: call),
           // Mark call as ended, locally
-          CallStateAction.disconnected(call.uuid),
+          CKCallStateAction.disconnected(call.uuid),
           // Mark call as ended, remote
-          CallStateAction.disconnecting(call.uuid),
+          CKCallStateAction.disconnecting(call.uuid),
           // End call, locally
           DisconnectAction.local(call.uuid),
           // End call, remote
@@ -108,12 +108,12 @@ class CKCallWidget extends StatelessWidget {
           // Some error occurred
           DisconnectAction.error(call.uuid),
         ];
-      case CallState.disconnecting:
+      case CKCallState.disconnecting:
         return [
           // Mark call as ended
-          CallStateAction.disconnected(call.uuid),
+          CKCallStateAction.disconnected(call.uuid),
         ];
-      case CallState.disconnected:
+      case CKCallState.disconnected:
         return [];
       default:
         return [];

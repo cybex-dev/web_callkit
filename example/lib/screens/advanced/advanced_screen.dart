@@ -65,7 +65,7 @@ class _ContentState extends State<_Content> {
 
   @override
   Widget build(BuildContext context) {
-    final capabilities = CallKitCapability.values.map((e) {
+    final capabilities = CKCapability.values.map((e) {
       return Padding(
         padding: const EdgeInsets.all(4.0),
         child: ElevatedButton(
@@ -92,7 +92,7 @@ class _ContentState extends State<_Content> {
         ),
       );
     });
-    final callTypes = CallType.values.map((e) {
+    final callTypes = CKCallType.values.map((e) {
       return Padding(
         padding: const EdgeInsets.all(4.0),
         child: ElevatedButton(
@@ -108,7 +108,7 @@ class _ContentState extends State<_Content> {
         ),
       );
     });
-    final callStates = CallState.values.map((e) {
+    final callStates = CKCallState.values.map((e) {
       return Padding(
         padding: const EdgeInsets.all(4.0),
         child: ElevatedButton(
@@ -143,7 +143,7 @@ class _ContentState extends State<_Content> {
                     uuid: callId,
                     handle: name,
                     capabilities: {
-                      CallKitCapability.hold,
+                      CKCapability.hold,
                     },
                   );
                 },
@@ -172,7 +172,7 @@ class _ContentState extends State<_Content> {
                     uuid: callId,
                     handle: name,
                     capabilities: {
-                      CallKitCapability.supportHold,
+                      CKCapability.supportHold,
                     },
                   );
                 },
@@ -186,7 +186,7 @@ class _ContentState extends State<_Content> {
                 onPressed: _hasCall
                     ? () async {
                         await webCallkitPlugin.reportCallDisconnected(callId,
-                            response: DisconnectResponse.local);
+                            response: CKDisconnectResponse.local);
                       }
                     : null,
                 label: const Text('Report Call Disconnected'),
@@ -213,7 +213,7 @@ class _ContentState extends State<_Content> {
                           return;
                         }
                         final attr =
-                            call.attributes.addWith(CallAttributes.hold);
+                            call.attributes.addWith(CKCallAttributes.hold);
                         await webCallkitPlugin.updateCallAttributes(callId,
                             attributes: attr);
                       }
@@ -235,7 +235,7 @@ class _ContentState extends State<_Content> {
                           return;
                         }
                         final attr =
-                            call.attributes.removeWith(CallAttributes.hold);
+                            call.attributes.removeWith(CKCallAttributes.hold);
                         await webCallkitPlugin.updateCallAttributes(callId,
                             attributes: attr);
                       }
@@ -263,7 +263,7 @@ class _ContentState extends State<_Content> {
                               return;
                             }
                             final attr =
-                                call.attributes.addWith(CallAttributes.mute);
+                                call.attributes.addWith(CKCallAttributes.mute);
                             await webCallkitPlugin.updateCallAttributes(callId,
                                 attributes: attr);
                           }
@@ -283,7 +283,7 @@ class _ContentState extends State<_Content> {
                               return;
                             }
                             final attr =
-                                call.attributes.removeWith(CallAttributes.mute);
+                                call.attributes.removeWith(CKCallAttributes.mute);
                             await webCallkitPlugin.updateCallAttributes(callId,
                                 attributes: attr);
                           }
