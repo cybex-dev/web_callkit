@@ -103,7 +103,8 @@ class CallManager {
   void updateCall(CKCall call) {
     final uuid = call.uuid;
     if (!_calls.containsKey(uuid)) {
-      throw Exception("Call with uuid: $uuid not found.");
+      printDebug("Failed to update call with uuid: $uuid. Call not found.", tag: tag);
+      return;
     }
 
     if (kDebugMode) {
