@@ -45,7 +45,7 @@ for more information
 ### Import the package
 
 ```dart
-import 'package:web_callkit/web_callkit.dart';
+import 'package:web_callkit/web_callkit_web.dart';
 ```
 
 ### Display the system call screen
@@ -54,7 +54,7 @@ Inform the plugin that an incoming call is being received. This will hook into t
 notification system.
 
 ```dart
-WebCallKit.instance.displayIncomingCall(uuid: '1234',handle: 'John Doe',);
+WebCallKitWeb.instance.displayIncomingCall(uuid: '1234',handle: 'John Doe',);
 ```
 
 ### End the call
@@ -65,7 +65,7 @@ or disconnects with VoIP calls due to internet disruptions.
 
 The CallKit supports `DisconnectResponse` enum to specify the reason for the call disconnection.
 
-e.g. `WebCallKit.instance.reportCallDisconnected('1234', response: DisconnectResponse.local);`
+e.g. `WebCallKitWeb.instance.reportCallDisconnected('1234', response: DisconnectResponse.local);`
 
 | Reason   | Description                                                                           |
 |----------|---------------------------------------------------------------------------------------|
@@ -92,7 +92,7 @@ Incoming calls are displayed on the screen with the caller's name and number. Th
 customized with the caller's name, number, and profile picture.
 
 ```dart
-WebCallKit.instance.reportNewCall(uuid: '1234', handle: 'John Doe',);
+WebCallKitWeb.instance.reportNewCall(uuid: '1234', handle: 'John Doe',);
 ```
 
 ##### End Calls
@@ -101,7 +101,7 @@ End calls by calling the `endCall` method. This will remove the call screen and 
 notification.
 
 ```dart
-WebCallKit.instance.reportCallDisconnected('1234', response:DisconnectResponse.local);
+WebCallKitWeb.instance.reportCallDisconnected('1234', response:DisconnectResponse.local);
 ```
 
 The response parameter is an enum of `DisconnectResponse` which specifies the reason for the call
@@ -145,7 +145,7 @@ The following describes the capabilities available:
 The following provides an example of how to report call capabilities:
 
 ```dart
-WebCallKit.instance.reportCallCapabilities('1234', capabilities: [CallCapability.hold, CallCapability.mute]);
+WebCallKitWeb.instance.reportCallCapabilities('1234', capabilities: [CallCapability.hold, CallCapability.mute]);
 ```
 
 #### Call Actions

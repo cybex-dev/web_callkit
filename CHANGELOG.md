@@ -1,3 +1,8 @@
+## 0.0.3+1
+
+* BREAKING CHANGE: Use `WebCallKitWeb` instead of `WebCallKit`.
+* update docs
+
 ## 0.0.3
 
 * BREAKING CHANGE: Update Callkit Models & Enums with `CK` prefix
