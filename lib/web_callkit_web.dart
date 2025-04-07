@@ -30,12 +30,18 @@ import 'src/models/config/ck_configuration.dart';
 import 'src/platform_interface/web_callkit_platform_interface.dart';
 import 'src/utils/utils.dart';
 
+export 'src/src.dart';
+
 /// A web implementation of the WebCallkitPlatform of the WebCallkit plugin.
 class WebCallkitWeb extends WebCallkitPlatform {
   static const tag = 'web_callkit';
 
+  static final WebCallkitWeb _instance = WebCallkitWeb._internal();
+
+  static WebCallkitWeb get instance => _instance;
+
   static void registerWith(Registrar registrar) {
-    WebCallkitPlatform.instance = WebCallkitWeb();
+    WebCallkitPlatform.instance = WebCallkitWeb._internal();
   }
 
   final Map<String, CallTimer> _timers = {};
@@ -55,7 +61,7 @@ class WebCallkitWeb extends WebCallkitPlatform {
   OnCallTypeChangeListener? _onCallTypeChangeListener;
   OnDismissedListener? _onDismissedListener;
 
-  CKConfiguration _configuration;
+  late CKConfiguration _configuration;
   final Map<String, bool> _defaultFlags = {
     NotificationManager.CK_EXTRA_PERSIST: true,
   };
@@ -63,14 +69,15 @@ class WebCallkitWeb extends WebCallkitPlatform {
   /// The method channel used to interact with the native platform.
   // @visibleForTesting
   // final methodChannel = const MethodChannel('web_callkit');
+  factory WebCallkitWeb() {
+    return _instance;
+  }
 
-  WebCallkitWeb({
-    CKConfiguration? configuration,
-  })  : /*_audioManager = audioManager ?? AudioManager(),*/
-        _callManager = CallManager(),
-        _notificationManager = NotificationManagerImplWeb(),
-        _configuration = configuration ?? WebCallkitPlatform.defaultConfiguration,
-        super() {
+  WebCallkitWeb._internal() {
+    _callManager = CallManager();
+    _notificationManager = NotificationManagerImplWeb();
+    _configuration = WebCallkitPlatform.defaultConfiguration;
+
     _setupNotificationEventListeners();
     _callManager.setOnCallUpdate(_onCallUpdated);
   }
