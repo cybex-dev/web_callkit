@@ -1,6 +1,6 @@
 name: web_callkit
 description: "Manage calls with an iOS-inspired Callkit for Flutter Web applications."
-version: 0.0.3
+version: 0.0.3+1
 homepage: "https://github.com/cybex-dev/web_callkit"
 platforms:
   web:
