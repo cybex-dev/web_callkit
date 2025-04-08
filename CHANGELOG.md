@@ -1,3 +1,8 @@
+## 0.0.4
+
+* Add `strictMode` to `CKConfiguration`
+* update docs
+
 ## 0.0.3+1
 
 * BREAKING CHANGE: Use `WebCallKitWeb` instead of `WebCallKit`.
