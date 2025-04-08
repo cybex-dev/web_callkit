@@ -222,10 +222,14 @@ class WebCallkitWeb extends WebCallkitPlatform {
       printDebug("Call with uuid: $uuid not found.", tag: tag);
       return;
     }
-    final validResponses = validCallStateDisconnectResponses[call.state] ?? CKDisconnectResponse.values;
-    if (!validResponses.contains(response)) {
-      printWarning("Invalid response for call state: ${call.state}", tag: tag);
-      return;
+    if (_configuration.strictMode) {
+      final validResponses = validCallStateDisconnectResponses[call.state] ?? CKDisconnectResponse.values;
+      if (!validResponses.contains(response)) {
+        printWarning("Invalid response for call state: ${call.state}", tag: tag);
+        return;
+      }
+    } else {
+      printDebug("Strict mode disabled. Ignoring valid disconnect call state check.", tag: tag);
     }
     _callManager.removeCall(uuid, response: response);
   }
