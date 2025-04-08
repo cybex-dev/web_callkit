@@ -1,6 +1,7 @@
 ## 0.0.4
 
 * Add `strictMode` to `CKConfiguration`
+* Fix(web): Instance duplication on getting singleton in web implementation. 
 * update docs
 
 ## 0.0.3+1
