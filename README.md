@@ -123,6 +123,8 @@ The following described scenarios are valid DisconnectResponses for specific cal
 | disconnecting | local, remote, unknown, error,                           |
 | disconnected  | local, remote, unknown, error,                           |
 
+if `strictMode` is enabled, the following valid `DisconnectResponse`s will be considered, else it will be rejected (and potentially thrown) in a future update.
+
 #### Notification Integration
 
 t.b.c.
