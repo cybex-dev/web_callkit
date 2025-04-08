@@ -41,7 +41,7 @@ class WebCallkitWeb extends WebCallkitPlatform {
   static WebCallkitWeb get instance => _instance;
 
   static void registerWith(Registrar registrar) {
-    WebCallkitPlatform.instance = WebCallkitWeb._internal();
+    WebCallkitPlatform.instance = _instance;
   }
 
   final Map<String, CallTimer> _timers = {};
