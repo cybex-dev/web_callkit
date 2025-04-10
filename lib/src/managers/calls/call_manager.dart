@@ -125,8 +125,12 @@ class CallManager {
           tag: tag);
       return;
     }
+    final c = call.copyWith(
+      state: CKCallState.disconnected,
+    );
+    _calls[uuid] = c;
 
-    final event = DisconnectCallEvent.reason(call, response: response);
+    final event = DisconnectCallEvent.reason(c, response: response);
     _addEvent(event);
   }
 
