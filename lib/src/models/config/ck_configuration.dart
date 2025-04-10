@@ -11,6 +11,7 @@ class CKConfiguration {
   final Set<CKCallAttributes> attributes;
   final CKTimer timer;
   final bool notifyOnCallEnd;
+  final bool notifyOnMissedCall;
   final Map<CKCallAction, String> icons;
   final bool strictMode;
   // final bool repostOnClick;
@@ -21,6 +22,7 @@ class CKConfiguration {
     this.attributes = const {},
     this.timer = const CKTimer(),
     this.notifyOnCallEnd = true,
+    this.notifyOnMissedCall = true,
     this.icons = const {},
     this.strictMode = true,
     // this.repostOnClick = true,
@@ -29,6 +31,6 @@ class CKConfiguration {
   @override
   String toString() {
     // return 'CKConfiguration{sounds: $sounds, capabilities: $capabilities, attributes: $attributes, timer: $timer, notifyOnCallEnd: $notifyOnCallEnd, repostOnClick: $repostOnClick}';
-    return 'CKConfiguration{sounds: $sounds, capabilities: $capabilities, attributes: $attributes, timer: $timer, notifyOnCallEnd: $notifyOnCallEnd, icons: $icons, strictMode: $strictMode}';
+    return 'CKConfiguration{sounds: $sounds, capabilities: $capabilities, attributes: $attributes, timer: $timer, notifyOnCallEnd: $notifyOnCallEnd, icons: $icons, strictMode: $strictMode, notifyOnMissedCall: $notifyOnMissedCall}';
   }
 }
