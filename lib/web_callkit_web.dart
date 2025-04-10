@@ -606,6 +606,17 @@ class WebCallkitWeb extends WebCallkitPlatform {
         if (event is DisconnectCallEvent) {
           _onDisconnectListener?.call(event.uuid, event.response, CKActionSource.api);
         }
+        bool isMissedCall = event is DisconnectCallEvent ? event.response == CKDisconnectResponse.missed : false;
+        if(_configuration.notifyOnCallEnd && !isMissedCall) {
+          final notification = _notificationManager.getNotification(event.uuid);
+          final n = _generateNotification(call: call, capabilities: call.capabilities, metadata: notification?.metadata, requireInteraction: false);
+          await _notificationManager.add(n, flags: {});
+        }
+        if(_configuration.notifyOnMissedCall && isMissedCall) {
+          final notification = _notificationManager.getNotification(event.uuid);
+          final n = _generateNotification(call: call, capabilities: call.capabilities, metadata: notification?.metadata, description: "Missed Call", requireInteraction: false);
+          await _notificationManager.add(n, flags: {});
+        }
         _stopCallTimer(id);
         break;
     }
@@ -712,9 +723,11 @@ class WebCallkitWeb extends WebCallkitPlatform {
     //ignore: unused_element
     Duration? offset,
     bool? silent,
+    String? description,
+    bool? requireInteraction,
   }) {
     final title = _getTitle(call);
-    final body = _getDescription(call);
+    final body = description ?? _getDescription(call);
     final actions = _getActions(call);
     final icon = _getIcon(call);
 
@@ -726,7 +739,7 @@ class WebCallkitWeb extends WebCallkitPlatform {
       actions: actions,
       icon: icon,
       silent: silent,
-      requireInteraction: true,
+      requireInteraction: requireInteraction ?? true,
       renotify: true,
       data: call.data,
       timestamp: currentTime.millisecondsSinceEpoch,
