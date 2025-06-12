@@ -5,6 +5,7 @@ import 'package:web_callkit/src/core/enums/ck_call_state.dart';
 import 'package:web_callkit/src/core/enums/ck_call_type.dart';
 import 'package:web_callkit/src/method_channel/web_callkit_method_channel.dart';
 import 'package:web_callkit/src/models/call/ck_call.dart';
+import 'package:matcher/matcher.dart' as matcher;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -34,11 +35,11 @@ void main() {
       final call = CKCall.init(uuid: id, localizedName: name);
       expect(call.uuid, id, reason: 'Call uuid should be $id');
       expect(call.localizedName, name, reason: 'Call name should be $name');
-      expect(call.dateStarted, isNotNull,
+      expect(call.dateStarted, matcher.isNotNull,
           reason: 'Call dateStarted should not be null');
-      expect(call.dateUpdated, isNotNull,
+      expect(call.dateUpdated, matcher.isNotNull,
           reason: 'Call dateUpdated should not be null');
-      expect(call.attributes, isNotNull,
+      expect(call.attributes, matcher.isNotNull,
           reason: 'Call attributes should not be null');
       expect(call.callType, CKCallType.audio,
           reason: 'Call callType should be audio');
@@ -71,7 +72,7 @@ void main() {
       final dateStarted = call.dateStarted;
       final copyWith = call.copyWith(dateStarted: DateTime.now());
       final newDateStarted = copyWith.dateStarted;
-      expect(dateStarted, isNot(newDateStarted),
+      expect(dateStarted, matcher.isNot(newDateStarted),
           reason: 'Call dateStarted should not be equal to new dateStarted');
     });
 
@@ -151,7 +152,7 @@ void main() {
         await platform
             .updateCallAttributes('123', attributes: {CKCallAttributes.hold});
         final call = platform.getCall('123');
-        expect(call, isNull, reason: 'Call should be null');
+        expect(call, matcher.isNull, reason: 'Call should be null');
       });
 
       test('updateCallAttributes: perform hold toggle', () async {
@@ -166,7 +167,7 @@ void main() {
         await platform.updateCallAttributes(id, attributes: {});
         final notholding = platform.getCall(id);
 
-        expect(call, isNotNull, reason: 'Call should not be null');
+        expect(call, matcher.isNotNull, reason: 'Call should not be null');
         expect(call!.isHolding, false, reason: 'Call should not be holding');
         expect(holding!.isHolding, true, reason: 'Call should be holding');
         expect(notholding!.isHolding, true,
@@ -180,7 +181,7 @@ void main() {
       test('updateCallStatus: does not exist', () async {
         await platform.updateCallStatus('123', callStatus: CKCallState.active);
         final call = platform.getCall('123');
-        expect(call, isNull, reason: 'Call should be null');
+        expect(call, matcher.isNull, reason: 'Call should be null');
       });
 
       test('updateCallStatus: ringing to active to ended', () async {
@@ -194,16 +195,16 @@ void main() {
         await platform.updateCallStatus(id, callStatus: CKCallState.disconnected);
         final disconnected = platform.getCall(id);
 
-        expect(call, isNotNull, reason: 'Call should not be null');
+        expect(call, matcher.isNotNull, reason: 'Call should not be null');
         expect(call!.uuid, '123', reason: 'Call uuid should be "123"');
         expect(call.localizedName, "handle",
             reason: 'Call handle should be "handle"');
 
-        expect(active, isNotNull, reason: 'Call active should not be null');
+        expect(active, matcher.isNotNull, reason: 'Call active should not be null');
         expect(active!.state, CKCallState.active,
             reason: 'Call state should be active');
 
-        expect(disconnected, isNotNull,
+        expect(disconnected, matcher.isNotNull,
             reason: 'Call disconnected should not be null');
         expect(disconnected!.state, CKCallState.disconnected,
             reason: 'Call state should be disconnected');

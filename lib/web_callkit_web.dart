@@ -41,7 +41,7 @@ class WebCallkitWeb extends WebCallkitPlatform {
   static WebCallkitWeb get instance => _instance;
 
   static void registerWith(Registrar registrar) {
-    WebCallkitPlatform.instance = WebCallkitWeb._internal();
+    WebCallkitPlatform.instance = _instance;
   }
 
   final Map<String, CallTimer> _timers = {};
@@ -222,10 +222,14 @@ class WebCallkitWeb extends WebCallkitPlatform {
       printDebug("Call with uuid: $uuid not found.", tag: tag);
       return;
     }
-    final validResponses = validCallStateDisconnectResponses[call.state] ?? CKDisconnectResponse.values;
-    if (!validResponses.contains(response)) {
-      printWarning("Invalid response for call state: ${call.state}", tag: tag);
-      return;
+    if (_configuration.strictMode) {
+      final validResponses = validCallStateDisconnectResponses[call.state] ?? CKDisconnectResponse.values;
+      if (!validResponses.contains(response)) {
+        printWarning("Invalid response for call state: ${call.state}", tag: tag);
+        return;
+      }
+    } else {
+      printDebug("Strict mode disabled. Ignoring valid disconnect call state check.", tag: tag);
     }
     _callManager.removeCall(uuid, response: response);
   }
@@ -602,6 +606,17 @@ class WebCallkitWeb extends WebCallkitPlatform {
         if (event is DisconnectCallEvent) {
           _onDisconnectListener?.call(event.uuid, event.response, CKActionSource.api);
         }
+        bool isMissedCall = event is DisconnectCallEvent ? event.response == CKDisconnectResponse.missed : false;
+        if(_configuration.notifyOnCallEnd && !isMissedCall) {
+          final notification = _notificationManager.getNotification(event.uuid);
+          final n = _generateNotification(call: call, capabilities: call.capabilities, metadata: notification?.metadata, requireInteraction: false);
+          await _notificationManager.add(n, flags: {});
+        }
+        if(_configuration.notifyOnMissedCall && isMissedCall) {
+          final notification = _notificationManager.getNotification(event.uuid);
+          final n = _generateNotification(call: call, capabilities: call.capabilities, metadata: notification?.metadata, description: "Missed Call", requireInteraction: false);
+          await _notificationManager.add(n, flags: {});
+        }
         _stopCallTimer(id);
         break;
     }
@@ -708,9 +723,11 @@ class WebCallkitWeb extends WebCallkitPlatform {
     //ignore: unused_element
     Duration? offset,
     bool? silent,
+    String? description,
+    bool? requireInteraction,
   }) {
     final title = _getTitle(call);
-    final body = _getDescription(call);
+    final body = description ?? _getDescription(call);
     final actions = _getActions(call);
     final icon = _getIcon(call);
 
@@ -722,7 +739,7 @@ class WebCallkitWeb extends WebCallkitPlatform {
       actions: actions,
       icon: icon,
       silent: silent,
-      requireInteraction: true,
+      requireInteraction: requireInteraction ?? true,
       renotify: true,
       data: call.data,
       timestamp: currentTime.millisecondsSinceEpoch,
