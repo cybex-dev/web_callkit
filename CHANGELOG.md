@@ -1,3 +1,7 @@
+## 0.0.4+1
+
+* Update documentation
+
 ## 0.0.4
 
 * Add `strictMode` to `CKConfiguration`
