@@ -34,9 +34,10 @@ The following describes the standard call flow expected of the `CallState` enum.
 
 ### Browser notifications
 
-Use native browser integration, the following limitations apply to each platform. Usage of Flutter
-package [js_notifications](https://pub.dev/packages/js_notifications) is assist in browser
-notification integration to native systems.
+Use native browser integration, the following limitations apply to each platform.
+
+Usage of Flutter package [js_notifications](https://pub.dev/packages/js_notifications) is assist in
+browser notification integration to native systems.
 See [js_notifications > platform limitations](https://github.com/cybex-dev/js_notifications?tab=readme-ov-file#platform-limitations)
 for more information
 
@@ -48,13 +49,36 @@ for more information
 import 'package:web_callkit/web_callkit_web.dart';
 ```
 
+### Copy service worker
+
+Copy the service worker file named `js_notifications-sw.js` from the `example` directory to your web
+directory. _The name is very important, so make sure to have the file
+named `js_notifications-sw.js`._
+
+The folder structure should look like this:
+
+```
+your_project/
+├── ...
+├── lib/
+├── web/
+│   ├── index.html
+│   ├── js_notifications-sw.js
+```
+
+**Note:** This is required for the browser to handle notifications in the background. The service
+worker will handle incoming call notifications and display them even when the app is not in focus.
+
 ### Display the system call screen
 
 Inform the plugin that an incoming call is being received. This will hook into the browser
 notification system.
 
 ```dart
-WebCallKitWeb.instance.displayIncomingCall(uuid: '1234',handle: 'John Doe',);
+WebCallKitWeb.instance.displayIncomingCall
+(
+uuid: '1234',handle: 'John Doe',
+);
 ```
 
 ### End the call
@@ -92,7 +116,10 @@ Incoming calls are displayed on the screen with the caller's name and number. Th
 customized with the caller's name, number, and profile picture.
 
 ```dart
-WebCallKitWeb.instance.reportNewCall(uuid: '1234', handle: 'John Doe',);
+WebCallKitWeb.instance.reportNewCall
+(
+uuid: '1234', handle: 'John Doe',
+);
 ```
 
 ##### End Calls
@@ -101,7 +128,14 @@ End calls by calling the `endCall` method. This will remove the call screen and 
 notification.
 
 ```dart
-WebCallKitWeb.instance.reportCallDisconnected('1234', response:DisconnectResponse.local);
+WebCallKitWeb.instance.reportCallDisconnected
+('1234
+'
+, response:
+DisconnectResponse
+.
+local
+);
 ```
 
 The response parameter is an enum of `DisconnectResponse` which specifies the reason for the call
@@ -123,7 +157,8 @@ The following described scenarios are valid DisconnectResponses for specific cal
 | disconnecting | local, remote, unknown, error,                           |
 | disconnected  | local, remote, unknown, error,                           |
 
-if `strictMode` is enabled, the following valid `DisconnectResponse`s will be considered, else it will be rejected (and potentially thrown) in a future update.
+if `strictMode` is enabled, the following valid `DisconnectResponse`s will be considered, else it
+will be rejected (and potentially thrown) in a future update.
 
 #### Notification Integration
 
@@ -147,7 +182,10 @@ The following describes the capabilities available:
 The following provides an example of how to report call capabilities:
 
 ```dart
-WebCallKitWeb.instance.reportCallCapabilities('1234', capabilities: [CallCapability.hold, CallCapability.mute]);
+WebCallKitWeb.instance.reportCallCapabilities
+('1234
+'
+, capabilities: [CallCapability.hold, CallCapability.mute]);
 ```
 
 #### Call Actions
