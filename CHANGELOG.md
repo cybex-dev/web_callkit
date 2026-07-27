@@ -1,4 +1,4 @@
-## Next Release
+## 1.0.0
 
 * Removed requirement to copy service worker to web folder. Now it is bundled with the package and registered automatically. See [README.md](README.md#service-worker) for more information.
 * **BREAKING**: Added WASM support from [js_notifications](https://pub.dev/packages/js_notifications) update.
