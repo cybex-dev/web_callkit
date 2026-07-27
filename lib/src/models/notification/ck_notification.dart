@@ -1,5 +1,4 @@
 import 'package:js_notifications/js_notifications_web.dart';
-import 'package:web/web.dart';
 
 import 'ck_notification_action.dart';
 import 'ck_notification_direction.dart';
@@ -35,14 +34,14 @@ class CKNotification {
     required String title,
     String? icon,
     String? body,
-    int? badge,
+    String? badge,
     CKNotificationDirection? dir,
     bool? renotify,
     bool? requireInteraction,
     bool? silent,
     String? image,
     String? lang,
-    VibratePattern? vibrate,
+    List<int>? vibrate,
     int? timestamp,
     List<CKNotificationAction> actions = const [],
     Map<String, dynamic>? data,
