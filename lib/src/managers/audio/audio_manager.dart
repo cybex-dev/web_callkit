@@ -1,4 +1,4 @@
-import 'dart:html' as html;
+import 'package:web/web.dart' as web;
 
 class AudioManager {
   static const tag = 'audio_manager';
@@ -13,7 +13,7 @@ class AudioPlayer {
 
   factory AudioPlayer() => _instance;
 
-  final html.AudioElement _audioElement = html.AudioElement();
+  final web.HTMLAudioElement _audioElement = web.HTMLAudioElement();
 
   void play(String url,
       {bool loop = true, double volume = 1.0, bool restart = true}) {

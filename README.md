@@ -49,13 +49,14 @@ for more information
 import 'package:web_callkit/web_callkit_web.dart';
 ```
 
-### Copy service worker
+### Service worker
 
-Copy the service worker file named `js_notifications-sw.js` from the `example` directory to your web
-directory. _The name is very important, so make sure to have the file
-named `js_notifications-sw.js`._
+**Nothing to do.** Since [js_notifications](https://pub.dev/packages/js_notifications) 1.0.0 the
+service worker ships as a bundled asset of that package and is registered automatically at startup.
 
-The folder structure should look like this:
+> **Upgrading?** If you previously copied `js_notifications-sw.js` into your `web/` directory,
+> delete it. The bundled worker supersedes it, and legacy registrations are unregistered
+> automatically on startup.
 
 ```
 your_project/
@@ -63,11 +64,22 @@ your_project/
 ├── lib/
 ├── web/
 │   ├── index.html
-│   ├── js_notifications-sw.js
 ```
 
-**Note:** This is required for the browser to handle notifications in the background. The service
-worker will handle incoming call notifications and display them even when the app is not in focus.
+The service worker is what allows call notifications to be displayed and acted on while the app is
+not in focus, and is required for notification action buttons (Answer, Decline, …) — those are only
+available on notifications shown via a service worker registration.
+
+### Request notification permissions
+
+Nothing is displayed until the user grants notification permission. Request it at a sensible moment
+(ideally tied to a user gesture, which some browsers require):
+
+```dart
+if (!await WebCallkit.instance.hasPermissions()) {
+  await WebCallkit.instance.requestPermissions();
+}
+```
 
 ### Display the system call screen
 
