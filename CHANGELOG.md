@@ -1,3 +1,9 @@
+## Unreleased
+
+* Declare the return type of `CKNotificationDirection.fromJs`, which was
+  inferred as `dynamic`. Resolves the `always_declare_return_types` lint
+  reported by pub.dev's static analysis.
+
 ## 1.0.0
 
 * Removed requirement to copy service worker to web folder. Now it is bundled with the package and registered automatically. See [README.md](README.md#service-worker) for more information.
