@@ -16,7 +16,7 @@ enum CKNotificationDirection {
     }
   }
 
-  static fromJs(JSNotificationDirection dir) {
+  static CKNotificationDirection fromJs(JSNotificationDirection dir) {
     switch (dir) {
       case JSNotificationDirection.auto:
         return CKNotificationDirection.auto;
