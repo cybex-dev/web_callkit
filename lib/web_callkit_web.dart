@@ -720,8 +720,6 @@ class WebCallkitWeb extends WebCallkitPlatform {
     required CKCall call,
     Set<CKCapability>? capabilities,
     Map<String, dynamic>? metadata,
-    //ignore: unused_element
-    Duration? offset,
     bool? silent,
     String? description,
     bool? requireInteraction,
