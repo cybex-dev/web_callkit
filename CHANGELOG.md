@@ -1,8 +1,7 @@
 ## Unreleased
 
-* Declare the return type of `CKNotificationDirection.fromJs`, which was
-  inferred as `dynamic`. Resolves the `always_declare_return_types` lint
-  reported by pub.dev's static analysis.
+* Add missing return type of `CKNotificationDirection.fromJs`.
+* Update docs
 
 ## 1.0.0
 
